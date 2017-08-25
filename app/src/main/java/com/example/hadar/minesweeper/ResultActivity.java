@@ -31,8 +31,7 @@ public class ResultActivity extends AppCompatActivity {
         homePage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(ResultActivity.this, MainActivity.class);
-                startActivity(intent);
+                finish();
             }
         });
 
@@ -42,6 +41,7 @@ public class ResultActivity extends AppCompatActivity {
                 Intent intent=new Intent(ResultActivity.this, GameActivity.class);
                 intent.putExtra("Difficulty", level);
                 startActivity(intent);
+                finish();
             }
         });
     }
@@ -62,6 +62,7 @@ public class ResultActivity extends AppCompatActivity {
             win();
 
     }
+
     //img view for the loser
     public void lose() {
         imageView.setBackgroundResource(R.drawable.lose);

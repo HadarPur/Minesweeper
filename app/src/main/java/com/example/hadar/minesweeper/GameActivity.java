@@ -32,7 +32,6 @@ public class GameActivity extends AppCompatActivity {
     private MineSweeperCell[][] cells;
     private ImageButton newGame;
     private Set<Integer> setFlags;
-    private static final String TAG = GameActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,17 +66,14 @@ public class GameActivity extends AppCompatActivity {
             chosenLevel=ex.getInt("Difficulty");
             switch (chosenLevel) {
                 case 0:
-                    // mines=EASY_FLAGS;
                     InitBoard(EASY_FLAGS,BOARD_CELL10);
                     createNewGridView(BOARD_CELL10,EASY_FLAGS);
                     break;
                 case 1:
-                    // mines=HARD_FLAGS;
                     InitBoard(HARD_FLAGS,BOARD_CELL10);
                     createNewGridView(BOARD_CELL10,HARD_FLAGS);
                     break;
                 case 2:
-                    // mines=HARD_FLAGS;
                     InitBoard(HARD_FLAGS,BOARD_CELL5);
                     createNewGridView(BOARD_CELL5,HARD_FLAGS);
                     break;
@@ -85,7 +81,7 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    //set the third row on the table layout
+    //building the game board
     public GridView createNewGridView(final int colsNum, final int mines) {
         gridview = (GridView) findViewById(R.id.gridview);
         gridview.setNumColumns(colsNum);
@@ -95,7 +91,7 @@ public class GameActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
                 int indexMine;
-                if (!cells[position/cells[0].length][position%cells[0].length].longPressed() && isLost==false) {
+                if (!cells[position/cells[0].length][position%cells[0].length].longPressed()) {
                     if (isFirstClick == true) {
                         isFirstClick = false;
                         timer(mines);
@@ -119,8 +115,6 @@ public class GameActivity extends AppCompatActivity {
                     }
                     cells[position / cells[0].length][position % cells[0].length].pressButon();
                     ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
-                    Log.d(TAG, "number of pressed cells is " + countOfPressed);
-
                 }
             }
         });
@@ -128,7 +122,7 @@ public class GameActivity extends AppCompatActivity {
         gridview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if (!cells[position / cells[0].length][position % cells[0].length].pressed() && isLost==false) {
+                if (!cells[position / cells[0].length][position % cells[0].length].pressed()) {
                     if (!cells[position / cells[0].length][position % cells[0].length].longPressed()) {
                         if (count > 0) {
                             count -= 1;
@@ -171,20 +165,19 @@ public class GameActivity extends AppCompatActivity {
                 timeout.setText(String.valueOf(seconds));
             }
         };
-
         new Thread(new Runnable() {
             @Override
             public void run() {
                 seconds = 0;
                 while (true) {
+                    // start counting time from the first click
                     if (isFirstClick==true)
                         break;
+                    // going to loose screen when user presses a mine
                     if(isLost == true){
-
-                        /** sleep in order to see all mines **/
-
+                        /* sleep in order to see all mines */
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(500);
                         }
                         catch (InterruptedException exception) {
                             exception.printStackTrace();
@@ -196,16 +189,15 @@ public class GameActivity extends AppCompatActivity {
                                 intent.putExtra("Result", LOSS);
                                 intent.putExtra("Difficulty", chosenLevel);
                                 startActivity(intent);
+                                finish();
                             }
                         });
                         break;
                     }
 
                     else{
-
+                        // going to win screen
                         if(countOfPressed+mines>=cells.length*cells[0].length&& isLost==false){
-
-                            Log.d(TAG,"you are winning! time = "+seconds);
                             GameActivity.this.runOnUiThread(new Runnable() {
                                 public void run() {
                                     Intent intent=new Intent(GameActivity.this, ResultActivity.class);
@@ -213,6 +205,7 @@ public class GameActivity extends AppCompatActivity {
                                     intent.putExtra("Points", seconds);
                                     intent.putExtra("Difficulty", chosenLevel);
                                     startActivity(intent);
+                                    finish();
                                 }
                             });
 
@@ -245,7 +238,7 @@ public class GameActivity extends AppCompatActivity {
         seconds++;
     }
 
-    //set the board game bomb
+    //set the board game with bomb
     public void InitBoard(int lavel, int boardSize) {
         int index;
         count=lavel;
@@ -274,7 +267,7 @@ public class GameActivity extends AppCompatActivity {
         setBombsNum();
     }
 
-    //calculate the bomb area for each cell helper
+    //calculate the number of bomb in the area for each cell
     public void setBombsNum(){
         int sum,i,j;
         for( i=1 ; i<cells.length-1;i++){
@@ -350,7 +343,7 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    //calculate the bomb area for each cell
+    //calculate the number of bomb in the area for each cell helper
     public int calcSum (int startRow, int endRow, int startCol, int endCol){
         int sum =0;
         for(int i=startRow; i<=endRow; i++){
@@ -382,13 +375,14 @@ public class GameActivity extends AppCompatActivity {
             ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
             openCellRec(x - 1, y); //left
             openCellRec(x, y + 1);//down
-            openCellRec(x, y - 1);//right
-            openCellRec(x + 1, y); //up
+            openCellRec(x, y - 1);//up
+            openCellRec(x + 1, y); //right
         }
     }
 }
 
 
+// this class describes a cell in the game
 class MineSweeperCell  {
     private int row;
     private int col;
@@ -403,26 +397,32 @@ class MineSweeperCell  {
         this.isLongPressed=false;
     }
 
+    // returns number of bombs around the cell
     public int getStatus() {
         return status;
     }
 
+    //set number of bombs around the cell
     public void setStatus( int status){
         this.status = status;
     }
 
+    // chang cell status to be pressed
     public void pressButon() {
         this.isPressed = true;
     }
 
+    //returns if cell was pressed
     public boolean pressed(){
         return isPressed;
     }
 
+    //returns if cell was long pressed
     public void pressLongButon() {
         this.isLongPressed ^= true;
     }
 
+    // chang cell status to be long pressed
     public boolean longPressed(){
         return isLongPressed;
     }
