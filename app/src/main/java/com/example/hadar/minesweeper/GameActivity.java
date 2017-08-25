@@ -189,7 +189,6 @@ public class GameActivity extends AppCompatActivity {
                                 intent.putExtra("Result", LOSS);
                                 intent.putExtra("Difficulty", chosenLevel);
                                 startActivity(intent);
-                                finish();
                             }
                         });
                         break;
@@ -205,7 +204,6 @@ public class GameActivity extends AppCompatActivity {
                                     intent.putExtra("Points", seconds);
                                     intent.putExtra("Difficulty", chosenLevel);
                                     startActivity(intent);
-                                    finish();
                                 }
                             });
 

@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
         //Game activity
-        <activity android:name=".GameActivity">
+        <activity android:name=".GameActivity" android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         //Result Activity
-        <activity android:name=".ResultActivity">
+        <activity android:name=".ResultActivity" android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

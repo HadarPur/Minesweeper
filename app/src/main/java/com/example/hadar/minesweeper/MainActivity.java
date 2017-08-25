@@ -41,6 +41,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         intent.putExtra("Difficulty", diff);
         startActivity(intent);
     }
-
-
 }

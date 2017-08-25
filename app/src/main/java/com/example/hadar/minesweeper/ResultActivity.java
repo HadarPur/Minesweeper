@@ -41,7 +41,6 @@ public class ResultActivity extends AppCompatActivity {
                 Intent intent=new Intent(ResultActivity.this, GameActivity.class);
                 intent.putExtra("Difficulty", level);
                 startActivity(intent);
-                finish();
             }
         });
     }
