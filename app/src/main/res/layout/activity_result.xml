@@ -19,9 +19,7 @@
         android:textColor="#FF000000"
         android:text="RESULT"
         android:textStyle="bold"
-        android:layout_marginTop="22dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_marginTop="22dp" />
 
 
     <ImageView
@@ -32,6 +30,40 @@
         android:layout_above="@+id/points" />
 
     <TextView
+        android:id="@+id/enterName"
+        android:layout_width="match_parent"
+        android:layout_height="200px"
+        android:gravity="center"
+        android:background="@drawable/table"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        android:textColor="#FF000000"
+        android:layout_above="@+id/recordName"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:id="@+id/recordName"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="@drawable/table"
+        android:textSize="25dp"
+        android:inputType="text"
+        android:layout_above="@+id/sendName"/>
+
+    <Button
+        android:id="@+id/sendName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/table"
+        android:gravity="center"
+        android:textSize="25dp"
+        android:textColor="#FF000000"
+        android:text="save"
+        android:layout_above="@+id/points"
+        android:layout_alignParentStart="true" />
+
+    <TextView
         android:id="@+id/points"
         android:layout_width="match_parent"
         android:layout_height="200px"
@@ -40,31 +72,42 @@
         android:textStyle="bold"
         android:textColor="#FF000000"
         android:layout_above="@+id/homepage"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="22dp" />
+        android:layout_alignParentStart="true" />
 
     <Button
         android:id="@+id/homepage"
         android:layout_width="170dp"
-        android:layout_height="80dp"
+        android:layout_height="50dp"
         android:background="@drawable/table"
         android:gravity="center"
         android:textSize="25dp"
         android:textColor="#FF000000"
         android:text="Home Page"
-        android:layout_alignBottom="@+id/newgame"
+        android:layout_above="@+id/record"
         android:layout_alignParentStart="true" />
 
     <Button
         android:id="@+id/newgame"
         android:layout_width="170dp"
-        android:layout_height="80dp"
+        android:layout_height="50dp"
         android:background="@drawable/table"
         android:gravity="center"
         android:textSize="25dp"
         android:textColor="#FF000000"
         android:text="New Game"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/points"
         android:layout_alignParentEnd="true" />
+
+    <Button
+        android:id="@+id/record"
+        android:layout_width="170dp"
+        android:layout_height="50dp"
+        android:background="@drawable/table"
+        android:gravity="center"
+        android:textSize="25dp"
+        android:textColor="#FF000000"
+        android:text="Record"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

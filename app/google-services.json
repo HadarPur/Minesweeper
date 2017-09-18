@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "739030422268",
+    "firebase_url": "https://minesweeper-34979.firebaseio.com",
+    "project_id": "minesweeper-34979",
+    "storage_bucket": "minesweeper-34979.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:739030422268:android:9b3e637d03043940",
+        "android_client_info": {
+          "package_name": "com.example.hadar.minesweeper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "739030422268-mk6t8cfmskued5tu4bfluecdhu9vchi7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOKqf6vb-u6ArbxAjyvBhKnsaEavn_Sm4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

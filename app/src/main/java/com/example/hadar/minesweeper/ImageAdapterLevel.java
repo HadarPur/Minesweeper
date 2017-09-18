@@ -9,7 +9,7 @@ import android.widget.BaseAdapter;
 public class ImageAdapterLevel extends BaseAdapter {
     private Context mContext;
     private MineSweeperCell[][] board;
-    private static final String TAG = GameActivity.class.getSimpleName();
+    private CellView vCell;
 
     public ImageAdapterLevel(Context c, MineSweeperCell[][] cells) {
         this.mContext = c;
@@ -31,15 +31,15 @@ public class ImageAdapterLevel extends BaseAdapter {
 
     // create a new ImageView
     public View getView(int position, View convertView, ViewGroup parent) {
-        CellView vCell;
         vCell = (CellView) convertView;
         if (convertView == null) {
             vCell = new CellView(mContext);
+            vCell.setBackgroundResource(R.drawable.table);
         }
         else {
             if(board[position/board.length][position%board[0].length].pressed()==true){
-                //Log.d(TAG,"position "+position + " is pressed");
                 if(board[position/board.length][position%board[0].length].getStatus() == -1) {
+                    vCell.txt.setText("");
                     vCell.setBackgroundResource(R.drawable.tablebombopen);
                 }
                 else {
@@ -50,13 +50,12 @@ public class ImageAdapterLevel extends BaseAdapter {
                 }
             }
             else {
+                vCell.txt.setText(" ");
                 if (board[position / board.length][position % board[0].length].longPressed() == true) {
                     vCell.setBackgroundResource(R.drawable.tableflag);
-                    vCell.bringToFront();
                 }
                 if (board[position / board.length][position % board[0].length].longPressed() == false) {
                     vCell.setBackgroundResource(R.drawable.table);
-                    vCell.bringToFront();
                 }
             }
         }
@@ -72,4 +71,5 @@ public class ImageAdapterLevel extends BaseAdapter {
             }
         }
     }
+
 }

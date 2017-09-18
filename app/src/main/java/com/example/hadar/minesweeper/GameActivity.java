@@ -1,52 +1,138 @@
 package com.example.hadar.minesweeper;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Location;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.os.Handler;
 import android.os.Message;
+import com.yalantis.starwars.TilesFrameLayout;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Set;
+import tyrantgit.explosionfield.ExplosionField;
 
-public class GameActivity extends AppCompatActivity {
+
+public class GameActivity extends AppCompatActivity  implements SensorEventListener {
+    private static final String TAG =GameActivity.class.getSimpleName();
     public static final int BOARD_CELL10 = 10;
     public static final int BOARD_CELL5 = 5;
     public static final int EASY_FLAGS = 5;
     public static final int HARD_FLAGS = 10;
     public static final int LOSS = 0;
     public static final int WIN = 1;
-    public GridView gridview=null;
-    public int count, seconds, countOfPressed, chosenLevel;
-    private boolean isLost=false, isFirstClick=true;
+    private long lastUpdate = 0;
+    private float oldX,oldY,oldZ;
+    public int count, seconds, countOfPressed, chosenLevel, isMute;
+    private boolean isLost=false, isFirstClick=true,isChangedOnce,isChangeMines;
     private TextView flags, timeout;
     private MineSweeperCell[][] cells;
     private ImageButton newGame;
     private Set<Integer> setFlags;
+    private RotateAnimation rotate;
+    private ExplosionField explode;
+    private Thread timerThread;
+    private SensorManager sensormanager;
+    private Sensor accelerometer;
+    public GridView gridview=null;
+    private TilesFrameLayout mTilesFrameLayout;
+    private MediaPlayer bomb, win;
+    private GPSTracker gpsTracker;
+    private Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        isChangedOnce = false;
+        isChangeMines = false;
+        sensormanager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensormanager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensormanager.registerListener(this, accelerometer , SensorManager.SENSOR_DELAY_NORMAL);
         newGame=(ImageButton)findViewById(R.id.smile);
+        bomb=MediaPlayer.create(this, R.raw.bomb);
+        win=MediaPlayer.create(this, R.raw.win);
+        setOnClickButton();
+        createNewGame();
+    }
+
+    public  void setOnClickButton () {
         newGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pressNewGame();
+                rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f,  Animation.RELATIVE_TO_SELF, 0.5f);
+                rotate.setDuration(1000);
+                newGame.startAnimation(rotate);
             }
         });
-
-        createNewGame();
     }
+
+    protected void onPause() {
+        super.onPause();
+        sensormanager.unregisterListener(this);
+    }
+
+    protected void onStart(){
+        Bundle ex;
+        super.onStart();
+        gpsTracker = new GPSTracker(this);
+        if(gpsTracker.getGPSEnable()){
+            currentLocation=gpsTracker.getPosition();
+            gpsTracker.initLocation();
+
+        }
+        //showSettingsAlert();
+    }
+
+    protected void onResume() {
+        super.onResume();
+        sensormanager.registerListener(this,accelerometer,SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    /*public void showSettingsAlert() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("GPS is settings");
+        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
+        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+                finish();
+            }
+        });
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                finish();
+            }
+        });
+        alertDialog.show();
+    }*/
 
     //restart the game
     public void pressNewGame() {
@@ -64,6 +150,7 @@ public class GameActivity extends AppCompatActivity {
         if (intent != null) {
             ex=intent.getExtras();
             chosenLevel=ex.getInt("Difficulty");
+            isMute=ex.getInt("Volume");
             switch (chosenLevel) {
                 case 0:
                     InitBoard(EASY_FLAGS,BOARD_CELL10);
@@ -83,38 +170,36 @@ public class GameActivity extends AppCompatActivity {
 
     //building the game board
     public GridView createNewGridView(final int colsNum, final int mines) {
+        mTilesFrameLayout = (TilesFrameLayout) findViewById(R.id.tiles_frame_layout);
+        explode=ExplosionField.attach2Window(this);
         gridview = (GridView) findViewById(R.id.gridview);
         gridview.setNumColumns(colsNum);
         gridview.setAdapter(new ImageAdapterLevel(this, cells));
         //short click on the cell to open
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
-                int indexMine;
-                if (!cells[position/cells[0].length][position%cells[0].length].longPressed()) {
-                    if (isFirstClick == true) {
-                        isFirstClick = false;
-                        timer(mines);
-                    }
-                    if (cells[position / cells[0].length][position % cells[0].length].getStatus() == -1) {
-                        Iterator itr = setFlags.iterator();
-                        indexMine = (int) itr.next();
-                        while (itr.hasNext()) {
-                            cells[indexMine / cells.length][indexMine % cells[0].length].pressButon();
-                            ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
-                            indexMine = (int) itr.next();
+                if(isChangeMines==false) {
+                    if (!cells[position / cells[0].length][position % cells[0].length].longPressed()) {
+                        if (isFirstClick == true) {
+                            //  initialPosition = false;
+                            isFirstClick = false;
+                            timer(mines);
                         }
+                        if (cells[position / cells[0].length][position % cells[0].length].getStatus() == -1) {
+                            showAllMines();
+                            isLost = true;
+                        } else {
+                            openCellRec(position / cells[0].length, position % cells[0].length);
 
-                        cells[indexMine / cells.length][indexMine % cells[0].length].pressButon();
+                        }
+                        cells[position / cells[0].length][position % cells[0].length].pressButon();
                         ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
 
-                        isLost = true;
-                    } else {
-                        openCellRec(position / cells[0].length, position % cells[0].length);
-
+                        //animation when the player win
+                        if (countOfPressed +setFlags.size() >= cells.length * cells[0].length && isLost == false) {
+                            explodeVictoryAnimation();
+                        }
                     }
-                    cells[position / cells[0].length][position % cells[0].length].pressButon();
-                    ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
                 }
             }
         });
@@ -122,21 +207,28 @@ public class GameActivity extends AppCompatActivity {
         gridview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if (!cells[position / cells[0].length][position % cells[0].length].pressed()) {
-                    if (!cells[position / cells[0].length][position % cells[0].length].longPressed()) {
-                        if (count > 0) {
-                            count -= 1;
+                boolean answer=true;
+                if(isChangeMines==false) {
+                    if (!cells[position / cells[0].length][position % cells[0].length].pressed()) {
+                        if (!cells[position / cells[0].length][position % cells[0].length].longPressed()) {
+                            if (count > 0) {
+                                count -= 1;
+                                cells[position / cells[0].length][position % cells[0].length].pressLongButon();
+                                ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
+                            }
+                        }
+                        else if (cells[position / cells[0].length][position % cells[0].length].longPressed()) {
+                            count += 1;
                             cells[position / cells[0].length][position % cells[0].length].pressLongButon();
                             ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
                         }
-                    } else if (cells[position / cells[0].length][position % cells[0].length].longPressed()) {
-                        count += 1;
-                        cells[position / cells[0].length][position % cells[0].length].pressLongButon();
-                        ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
+                        flags.setText(String.valueOf(count));
                     }
-                    flags.setText(String.valueOf(count));
+                    else {
+                        answer=false;
+                    }
                 }
-                return true;
+                return answer;
             }
         });
         return gridview;
@@ -155,6 +247,27 @@ public class GameActivity extends AppCompatActivity {
         timeout.setText(String.valueOf(0));
     }
 
+    public void explodeVictoryAnimation() {
+        if (isMute==1)
+            win.start();
+        explode.explode(newGame);
+        explode.explode(flags);
+        explode.explode(timeout);
+        explode.explode(gridview);
+    }
+
+    public void showAllMines() {
+        int indexMine;
+        if (isMute==1)
+            bomb.start();
+        Iterator itr = setFlags.iterator();
+        while (itr.hasNext()) {
+            indexMine = (int) itr.next();
+            cells[indexMine / cells.length][indexMine % cells[0].length].pressButon();
+            ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
+        }
+    }
+
     //timer thread method
     public void timer(final int mines) {
 
@@ -165,75 +278,90 @@ public class GameActivity extends AppCompatActivity {
                 timeout.setText(String.valueOf(seconds));
             }
         };
-        new Thread(new Runnable() {
+        Runnable r = new Runnable() {
             @Override
             public void run() {
-                seconds = 0;
-                while (true) {
-                    // start counting time from the first click
-                    if (isFirstClick==true)
-                        break;
-                    // going to loose screen when user presses a mine
-                    if(isLost == true){
+                try {
+                    seconds = 0;
+                    while (true) {
+                        // start counting time from the first click
+                        if (isFirstClick == true)
+                            break;
+                        // going to loose screen when user presses a mine
+                        if (isLost == true) {
                         /* sleep in order to see all mines */
-                        try {
-                            Thread.sleep(500);
-                        }
-                        catch (InterruptedException exception) {
-                            exception.printStackTrace();
-                        }
-
-                        GameActivity.this.runOnUiThread(new Runnable() {
-                            public void run() {
-                                Intent intent=new Intent(GameActivity.this, ResultActivity.class);
-                                intent.putExtra("Result", LOSS);
-                                intent.putExtra("Difficulty", chosenLevel);
-                                startActivity(intent);
-                            }
-                        });
-                        break;
-                    }
-
-                    else{
-                        // going to win screen
-                        if(countOfPressed+mines>=cells.length*cells[0].length&& isLost==false){
+                            Thread.sleep(300);
+                            //animation when the player lose
+                            mTilesFrameLayout.startAnimation();
+                            Thread.sleep(1500);
                             GameActivity.this.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    Intent intent=new Intent(GameActivity.this, ResultActivity.class);
-                                    intent.putExtra("Result", WIN);
-                                    intent.putExtra("Points", seconds);
+                                    Intent intent = new Intent(GameActivity.this, ResultActivity.class);
+                                    intent.putExtra("Result", LOSS);
                                     intent.putExtra("Difficulty", chosenLevel);
+                                    intent.putExtra("Volume", isMute);
+                                    if(currentLocation!=null) {
+                                        intent.putExtra("locationlat", currentLocation.getLatitude());
+                                        intent.putExtra("locationlong", currentLocation.getLongitude());
+                                    }
                                     startActivity(intent);
+                                    overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
                                 }
                             });
-
                             break;
                         }
-                    }
-                    tick();
-                    handler.sendEmptyMessage(0);
+                        else {
+                            Thread.sleep(1000);
+                            // going to win screen
+                            if (countOfPressed + setFlags.size() >= cells.length * cells[0].length && isLost == false) {
+                                Thread.sleep(800);
+                                GameActivity.this.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        Intent intent = new Intent(GameActivity.this, ResultActivity.class);
+                                        intent.putExtra("Result", WIN);
+                                        intent.putExtra("Points", seconds);
+                                        intent.putExtra("Difficulty", chosenLevel);
+                                        intent.putExtra("Volume", isMute);
+                                        if(currentLocation!=null) {
+                                            intent.putExtra("locationlat", currentLocation.getLatitude());
+                                            intent.putExtra("locationlong", currentLocation.getLongitude());
+                                        }
+                                        startActivity(intent);
+                                        overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
+                                    }
+                                });
+                                break;
+                            }
+                        }
+                        tick();
+                        handler.sendEmptyMessage(0);
 
-                    try {
                         Thread.sleep(1000);
                     }
-                    catch (InterruptedException exception) {
-                        exception.printStackTrace();
-                    }
-                }
+                    Thread.currentThread().interrupt();
 
-                try {
-                    this.finalize();
-                }
-                catch (Throwable throwable) {
-                    throwable.printStackTrace();
+                } catch (Throwable throwable) {
+                    finish();
                 }
             }
-        }).start();
+        };
+
+        timerThread = new Thread(r);
+        timerThread.start();
     }
 
     //sec count for timer
     private void  tick() {
         seconds++;
+    }
+
+    /* interrupt thread while pressing back button */
+
+    public void onBackPressed() {
+        if(!isFirstClick) {
+            timerThread.interrupt();
+        }
+        finish();
     }
 
     //set the board game with bomb
@@ -245,9 +373,11 @@ public class GameActivity extends AppCompatActivity {
         setFlags = new LinkedHashSet<>();
         // five random cells with flags
         while(setFlags.size()<lavel){
+            Log.d(TAG, "size = " +setFlags.size());
             Random r = new Random();
             index = r.nextInt(boardSize*boardSize) + 0;
             setFlags.add(index);
+            Log.d(TAG, "size = " +setFlags.size());
         }
 
         // fill board with flags matrix
@@ -256,7 +386,6 @@ public class GameActivity extends AppCompatActivity {
                 if (setFlags.contains(i*boardSize+k))
                     cells[i][k]= new MineSweeperCell(i,k, -1);
                 else {
-
                     cells[i][k]=new MineSweeperCell(i,k, 0);
                 }
             }
@@ -377,11 +506,82 @@ public class GameActivity extends AppCompatActivity {
             openCellRec(x + 1, y); //right
         }
     }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+
+        float x,y,z;
+        int index;
+        Sensor mySensor = sensorEvent.sensor;
+
+        if(mySensor.getType()== Sensor.TYPE_ACCELEROMETER) {
+            x = sensorEvent.values[0];
+            y = sensorEvent.values[1];
+            z = sensorEvent.values[2];
+
+            long curTime = System.currentTimeMillis();
+            if ((curTime - lastUpdate) > 1000) {
+                lastUpdate = curTime;
+                if (isFirstClick) {
+                    oldX = x;
+                    oldY = y;
+                    oldZ = z;
+                    if(chosenLevel==0)
+                        count=EASY_FLAGS;
+                    else {
+                        count=HARD_FLAGS;
+                    }
+                    Log.d(TAG, "still initial flags: "+count);
+                }
+
+                if ((Math.abs(oldX - x) >= 5) || (Math.abs(oldY - y) >= 5) || (Math.abs(oldZ - z) >= 5)) {
+
+                    if(isChangeMines==false){
+                        countOfPressed=0;
+                        for (int i = 0; i < cells.length; i++) {
+                            for (int j = 0; j < cells.length; j++) {
+                                cells[i][j].unPress();
+                                ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
+                            }
+                        }
+                    }
+
+                    isChangeMines=true;
+                    Random r = new Random();
+                    index = r.nextInt(cells.length * cells[0].length) + 0;
+                    Log.d(TAG,"index: "+index);
+                    if(setFlags.contains(index)==false) {
+                        cells[index / cells.length][index % cells.length].setStatus(-1);
+                        ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
+                        setFlags.add(index);
+                        setBombsNum();
+                        count++;
+                        flags.setText(String.valueOf(count));
+                        Log.d(TAG,"mines: "+count);
+                    }
+
+                    if(setFlags.size() >= cells.length * cells[0].length) {
+                        showAllMines();
+                        isLost = true;
+                    }
+                }
+                else {
+                    isChangeMines=false;
+                }
+
+            }
+
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+    }
+
 }
 
-
 // this class describes a cell in the game
-class MineSweeperCell  {
+class MineSweeperCell {
     private int row;
     private int col;
     private int status;
@@ -409,6 +609,9 @@ class MineSweeperCell  {
     public void pressButon() {
         this.isPressed = true;
     }
+
+    //update cell status to be unpressed
+    public void unPress() {this.isPressed = false; }
 
     //returns if cell was pressed
     public boolean pressed(){
