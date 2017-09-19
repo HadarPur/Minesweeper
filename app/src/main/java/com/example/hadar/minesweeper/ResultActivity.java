@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+
 public class ResultActivity extends AppCompatActivity {
     private static final String TAG =ResultActivity.class.getSimpleName();
     private ImageView imageView;
@@ -118,13 +119,9 @@ public class ResultActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 name=info.getText().toString();
-                UserInfo user = new UserInfo(name,latitude,longitude,points);
-                Log.d(TAG,"new user: \n");
-                Log.d(TAG,"name:" +user.getName()+"\n");
-                Log.d(TAG,"location: ("+user.getLatitude()+" , " +user.getLongitude()+ " )\n");
-                Log.d(TAG,"points:"+user.getPoints()+ "\n");
+                UserInfo user = new UserInfo(name,latitude,longitude,points,level);
                 JsonData firebaseData = new JsonData();
-                firebaseData.writeUserToDataBase(user);
+                firebaseData.writeUserToDataBase(user,level);
                 nametxt.setVisibility(View.INVISIBLE);
                 info.setVisibility(View.INVISIBLE);
                 v.setVisibility(View.INVISIBLE);

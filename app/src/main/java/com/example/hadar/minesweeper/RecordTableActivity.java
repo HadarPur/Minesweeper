@@ -1,5 +1,7 @@
 package com.example.hadar.minesweeper;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -11,6 +13,7 @@ public class RecordTableActivity extends AppCompatActivity  {
     private TableFrame tableFragment;
     private LatLng sydney;
     private double latitude, longitude;
+    private boolean firstAsk=false;
     private GPSTracker gpsTracker;
     private JsonData data;
     private Bundle ex;
@@ -21,49 +24,46 @@ public class RecordTableActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_record_table);
         JsonData firebaseData = new JsonData();
 
-        gpsTracker = new GPSTracker(this);
-        if(gpsTracker.getGPSEnable() && gpsTracker.getPosition()!=null){
+        gpsTracker = new GPSTracker(this, firstAsk);
+        if(gpsTracker.getGPSEnable()&& gpsTracker.getPosition()!=null){
             latitude=gpsTracker.getPosition().getLatitude();
             longitude=gpsTracker.getPosition().getLongitude();
             gpsTracker.initLocation();
+        }
+        else {
+            showSettingsAlert();
+            latitude=0;
+            longitude=0;
         }
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         //gpsTracker = new GPSTracker(getApplicationContext());
         Map map = new Map(mapFragment,latitude,longitude);
+        tableFragment= (TableFrame) getSupportFragmentManager().findFragmentById(R.id.table);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        //  data = new JsonData();
-        tableFragment= (TableFrame) getSupportFragmentManager().findFragmentById(R.id.table);
-        tableFragment.SetText("someyhing");
-        //  Log.d(TAG,"value is: "+ data.getData());
     }
 
-    /*public void showSettingsAlert() {
+    public void showSettingsAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle("GPS is settings");
-        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
-        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+        alertDialog.setTitle("Location is not available");
+        alertDialog.setMessage("You must permit location to see the records");
+        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
                 finish();
             }
         });
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-
+        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+            public void onDismiss(DialogInterface dialog) {
                 finish();
             }
         });
-
         alertDialog.show();
-    }*/
+    }
 }

@@ -44,7 +44,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     private long lastUpdate = 0;
     private float oldX,oldY,oldZ;
     public int count, seconds, countOfPressed, chosenLevel, isMute;
-    private boolean isLost=false, isFirstClick=true,isChangedOnce,isChangeMines;
+    private boolean isLost=false, isFirstClick=true,isChangedOnce,isChangeMines, firstAsk=false;
     private TextView flags, timeout;
     private MineSweeperCell[][] cells;
     private ImageButton newGame;
@@ -96,43 +96,19 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     protected void onStart(){
         Bundle ex;
         super.onStart();
-        gpsTracker = new GPSTracker(this);
-        if(gpsTracker.getGPSEnable()){
+        gpsTracker = new GPSTracker(this, firstAsk);
+        if(gpsTracker.getGPSEnable()&& gpsTracker.getPosition()!=null){
             currentLocation=gpsTracker.getPosition();
             gpsTracker.initLocation();
-
         }
-        //showSettingsAlert();
+        else
+            showSettingsAlert();
     }
 
     protected void onResume() {
         super.onResume();
         sensormanager.registerListener(this,accelerometer,SensorManager.SENSOR_DELAY_NORMAL);
     }
-
-    /*public void showSettingsAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle("GPS is settings");
-        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
-        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
-                finish();
-            }
-        });
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                finish();
-            }
-        });
-        alertDialog.show();
-    }*/
 
     //restart the game
     public void pressNewGame() {
@@ -572,6 +548,26 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
             }
 
         }
+    }
+
+    public void showSettingsAlert() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Location is not available");
+        alertDialog.setMessage("You must permit location to play");
+        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                finish();
+            }
+        });
+        alertDialog.show();
     }
 
     @Override

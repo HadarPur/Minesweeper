@@ -2,11 +2,10 @@ package com.example.hadar.minesweeper;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -14,57 +13,82 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 public class GPSTracker extends Service implements LocationListener {
+    private static final String TAG =GPSTracker.class.getSimpleName();
+    private final int PERMISSION_LOCATION_CODE=1234;
     private final Activity activity;
     boolean isGPSEnabled =false;
     boolean isNetworkEnabled =false;
     private Location location;
     protected LocationManager locationManager;
 
-    public GPSTracker(Activity activity){
+    public GPSTracker(Activity activity, boolean firstAction) {
         this.activity = activity;
+        if (firstAction==true)
+            setFirstCounter();
         initLocation();
     }
 
     //Create a GetLocation Method //
     public  void initLocation() {
         try {
-
             locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
             isGPSEnabled = locationManager.isProviderEnabled(locationManager.GPS_PROVIDER);
             isNetworkEnabled=locationManager.isProviderEnabled(locationManager.NETWORK_PROVIDER);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 // for new versions
-                if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        || ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    requestLocation();
-                } else {
-                    ////
+                if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED) {
 
-                    boolean alreadyAsked = getCounter() > 0;
+                    requestLocation();
+                }
+                else {
+                    boolean alreadyAsked = getCounter(PERMISSION_LOCATION_CODE) > 0;
                     if (!alreadyAsked) {
-                        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 6756);
+                        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_LOCATION_CODE);
+                        incrementCounter(PERMISSION_LOCATION_CODE);
                     }
                 }
-            } else {
+            }
+            else {
                 // for older versions
                 requestLocation();
             }
-
         }
         catch(Exception ex){
             ex.printStackTrace();
         }
     }
 
-    private int getCounter() {
-        return 0;
+    private void setFirstCounter() {
+        SharedPreferences sharedPreferences=activity.getSharedPreferences("permissionCounters", Context.MODE_PRIVATE);
+        String sharedPreferencesKey=String.valueOf(PERMISSION_LOCATION_CODE);
+        int permissionCounter=0;
+        sharedPreferences.edit().putInt(sharedPreferencesKey, permissionCounter).apply();
+    }
+
+    private int getCounter(int permissionCode) {
+        SharedPreferences sharedPreferences=activity.getSharedPreferences("permissionCounters", Context.MODE_PRIVATE);
+        String sharedPreferencesKey=String.valueOf(permissionCode);
+        int permissionCounter=sharedPreferences.getInt(sharedPreferencesKey, 0);
+        Log.d(TAG, "counter value (get counter): " +permissionCounter);
+        return permissionCounter;
+    }
+
+    public void incrementCounter(int permissionCode) {
+        SharedPreferences sharedPreferences=activity.getSharedPreferences("permissionCounters", Context.MODE_PRIVATE);
+        String sharedPreferencesKey=String.valueOf(permissionCode);
+        int permissionCounter=sharedPreferences.getInt(sharedPreferencesKey, 0);
+        Log.d(TAG, "counter value (increment): " +permissionCounter);
+        sharedPreferences.edit().putInt(sharedPreferencesKey, permissionCounter+1).apply();
     }
 
     /**
@@ -75,22 +99,18 @@ public class GPSTracker extends Service implements LocationListener {
         if (isGPSEnabled) {
             if (location == null) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, this);
-                if (locationManager != null) {
+                if (locationManager != null)
                     location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                }
             }
         }
         // if lcoation is not found from GPS than it will found from network //
         if (location == null) {
             if (isNetworkEnabled) {
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 10, this);
-                if (locationManager != null) {
+                if (locationManager != null)
                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                }
-
             }
         }
-
     }
 
     public boolean getGPSEnable(){

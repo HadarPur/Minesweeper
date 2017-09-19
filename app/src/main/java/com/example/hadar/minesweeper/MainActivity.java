@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private int diff, isMute=1;
+    private boolean firstAsk=true;
     private Intent intent;
     private MediaPlayer open_song;
     private GPSTracker gpsTracker ;
@@ -26,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        gpsTracker = new GPSTracker(this);
+        gpsTracker = new GPSTracker(this, firstAsk);
         findView();
 
     }
