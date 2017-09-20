@@ -52,7 +52,7 @@ public class ResultActivity extends AppCompatActivity {
                 intent.putExtra("Volume", isMute);
                 startActivity(intent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-
+                finish();
             }
         });
 

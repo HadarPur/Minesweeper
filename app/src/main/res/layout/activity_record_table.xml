@@ -16,8 +16,8 @@
         android:text="RECORD TABLE"
         android:textColor="#FF000000"
         android:textSize="25dp"
-        android:textStyle="bold"
-        android:layout_marginTop="22dp"/>
+        android:layout_marginTop="22dp"
+        android:textStyle="bold" />
     <Button
         android:id="@+id/easy"
         android:layout_width="130dp"
@@ -56,7 +56,7 @@
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="190dp"
+        android:layout_height="200dp"
         android:id="@+id/table"
         android:name="com.example.hadar.minesweeper.TableFrame"
         android:layout_above="@+id/map"
@@ -67,7 +67,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="190dp"
+        android:layout_height="200dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true" />
 

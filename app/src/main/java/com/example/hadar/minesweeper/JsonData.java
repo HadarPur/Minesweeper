@@ -9,6 +9,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 public class JsonData implements Serializable {
@@ -42,6 +43,20 @@ public class JsonData implements Serializable {
                 break;
             case HARD:
                 myRefHard.push().setValue(user);
+                break;
+        }
+    }
+
+    public void deleteUserFromDataBase(int index, int level) {
+        switch (level) {
+            case EASY:
+                deleteEvent(myRefEasy);
+                break;
+            case NORMAL:
+                deleteEvent(myRefMedium);
+                break;
+            case HARD:
+                deleteEvent(myRefHard);
                 break;
         }
     }
@@ -86,16 +101,40 @@ public class JsonData implements Serializable {
                 }
                 switch (level) {
                     case EASY:
+                        Collections.sort(easyUsers, new Comparator());
                         queryCallback.performQuery(easyUsers);
                         break;
                     case NORMAL:
+                        Collections.sort(normalUsers, new Comparator());
                         queryCallback.performQuery(normalUsers);
                         break;
                     case HARD:
+                        Collections.sort(hardUsers, new Comparator());
                         queryCallback.performQuery(hardUsers);
                         break;
                 }
             }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void deleteEvent(final DatabaseReference myRef) {
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "start deleting");
+                String key="";
+                Iterator<DataSnapshot> itr = dataSnapshot.getChildren().iterator();
+                while(itr.hasNext()) {
+                    key = itr.next().getKey();
+                }
+                Log.d(TAG, "key: "+ key);
+                myRef.child(key).removeValue();
+            }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
 

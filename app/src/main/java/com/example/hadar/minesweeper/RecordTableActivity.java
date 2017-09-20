@@ -17,13 +17,12 @@ import java.util.ArrayList;
 public class RecordTableActivity extends AppCompatActivity  {
     private static final String TAG =RecordTableActivity.class.getSimpleName();
     private static final int EASY=0, NORMAL=1, HARD=2;
+    private boolean firstAsk=false;
+    private double latitude, longitude;
     private SupportMapFragment mapFragment;
     private TableFrame tableFragment;
-    private double latitude, longitude;
     private GPSTracker gpsTracker;
-    private boolean firstAsk=false;
     private Map map;
-    private ArrayList<UserInfo> arrayList=new ArrayList<>();
     private Button easyButton,mediumButton,hardButton;
 
     @Override

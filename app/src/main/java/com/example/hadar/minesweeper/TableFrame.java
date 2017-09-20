@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.hadar.minesweeper.quaries.CallData;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class TableFrame extends Fragment implements CallData {
     private static final String TAG ="table";

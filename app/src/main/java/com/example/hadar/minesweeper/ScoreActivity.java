@@ -10,11 +10,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class ScoreActivity extends AppCompatActivity {
-    private TextView nametxt;
+    public final int WIN=1;
+    private TextView nametv;
     private EditText info;
     private double latitude;
     private double longitude;
-    private int result, points, level, isMute;
+    private int points, level, isMute, index;
     private String name;
     private Button save, cancel;
 
@@ -23,7 +24,7 @@ public class ScoreActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_score);
 
-        nametxt = (TextView) findViewById(R.id.enterName);
+        nametv = (TextView) findViewById(R.id.enterName);
         info = (EditText) findViewById(R.id.recordName);
         save = (Button) findViewById(R.id.sendName);
         cancel = (Button) findViewById(R.id.cancel);
@@ -43,22 +44,23 @@ public class ScoreActivity extends AppCompatActivity {
     public void getResult() {
         Intent intent=getIntent();
         Bundle ex=intent.getExtras();
-        result=ex.getInt("Result");
+        index=ex.getInt("Index");
         points=ex.getInt("Points");
         level=ex.getInt("Difficulty");
         isMute=ex.getInt("Volume");
         latitude=ex.getDouble("locationlat");
         longitude=ex.getDouble("locationlong");
 
-        nametxt.setVisibility(View.VISIBLE);
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 name=info.getText().toString();
                 UserInfo user = new UserInfo(name,latitude,longitude,points,level);
                 JsonData firebaseData = new JsonData();
-                firebaseData.writeUserToDataBase(user,level);
-
+                if (index>=9)
+                    firebaseData.deleteUserFromDataBase(index, level);
+                else
+                    firebaseData.writeUserToDataBase(user,level);
                 nextActivity();
             }
         });
@@ -73,12 +75,11 @@ public class ScoreActivity extends AppCompatActivity {
 
     public void nextActivity() {
         Intent intent=new Intent( ScoreActivity.this,ResultActivity.class);
-        intent.putExtra("Result", 1);
+        intent.putExtra("Result", WIN);
         intent.putExtra("Points", points);
         intent.putExtra("Difficulty", level);
         intent.putExtra("Volume", isMute);
         startActivity(intent);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
-
 }

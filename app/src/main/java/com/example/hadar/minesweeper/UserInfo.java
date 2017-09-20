@@ -11,7 +11,6 @@ public class UserInfo {
     private String level;
 
     public UserInfo(){
-
     }
 
     public UserInfo(String name,double latitude,double longitude,int points,int level){

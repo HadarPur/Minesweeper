@@ -13,7 +13,6 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -25,7 +24,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.os.Handler;
 import android.os.Message;
+import com.example.hadar.minesweeper.quaries.CallData;
 import com.yalantis.starwars.TilesFrameLayout;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Random;
@@ -33,14 +35,12 @@ import java.util.Set;
 import tyrantgit.explosionfield.ExplosionField;
 
 
-public class GameActivity extends AppCompatActivity  implements SensorEventListener {
+public class GameActivity extends AppCompatActivity  implements SensorEventListener, CallData {
     private static final String TAG =GameActivity.class.getSimpleName();
-    public static final int BOARD_CELL10 = 10;
-    public static final int BOARD_CELL5 = 5;
-    public static final int EASY_FLAGS = 5;
-    public static final int HARD_FLAGS = 10;
-    public static final int LOSS = 0;
-    public static final int WIN = 1;
+    private static final int EASY=0, NORMAL=1, HARD=2;
+    public static final int BOARD_CELL10 = 10, BOARD_CELL5 = 5;
+    public static final int EASY_FLAGS = 5, HARD_FLAGS = 10;
+    public static final int LOSS = 0, WIN = 1;
     private long lastUpdate = 0;
     private float oldX,oldY,oldZ;
     public int count, seconds, countOfPressed, chosenLevel, isMute;
@@ -54,11 +54,13 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     private Thread timerThread;
     private SensorManager sensormanager;
     private Sensor accelerometer;
-    public GridView gridview=null;
+    private GridView gridview=null;
     private TilesFrameLayout mTilesFrameLayout;
     private MediaPlayer bomb, win;
     private GPSTracker gpsTracker;
     private Location currentLocation;
+    private JsonData jsonData;
+    private ArrayList<UserInfo> userInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         setContentView(R.layout.activity_game);
         isChangedOnce = false;
         isChangeMines = false;
+        jsonData=new JsonData();
         sensormanager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensormanager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensormanager.registerListener(this, accelerometer , SensorManager.SENSOR_DELAY_NORMAL);
@@ -128,17 +131,20 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
             chosenLevel=ex.getInt("Difficulty");
             isMute=ex.getInt("Volume");
             switch (chosenLevel) {
-                case 0:
+                case EASY:
                     InitBoard(EASY_FLAGS,BOARD_CELL10);
                     createNewGridView(BOARD_CELL10,EASY_FLAGS);
+                    jsonData.readResults(this,EASY);
                     break;
-                case 1:
+                case NORMAL:
                     InitBoard(HARD_FLAGS,BOARD_CELL10);
                     createNewGridView(BOARD_CELL10,HARD_FLAGS);
+                    jsonData.readResults(this,NORMAL);
                     break;
-                case 2:
+                case HARD:
                     InitBoard(HARD_FLAGS,BOARD_CELL5);
                     createNewGridView(BOARD_CELL5,HARD_FLAGS);
+                    jsonData.readResults(this,HARD);
                     break;
             }
         }
@@ -168,7 +174,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                             openCellRec(position / cells[0].length, position % cells[0].length);
 
                         }
-                        cells[position / cells[0].length][position % cells[0].length].pressButon();
+                        cells[position / cells[0].length][position % cells[0].length].pressButton();
                         ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
 
                         //animation when the player win
@@ -189,13 +195,13 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                         if (!cells[position / cells[0].length][position % cells[0].length].longPressed()) {
                             if (count > 0) {
                                 count -= 1;
-                                cells[position / cells[0].length][position % cells[0].length].pressLongButon();
+                                cells[position / cells[0].length][position % cells[0].length].pressLongButton();
                                 ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
                             }
                         }
                         else if (cells[position / cells[0].length][position % cells[0].length].longPressed()) {
                             count += 1;
-                            cells[position / cells[0].length][position % cells[0].length].pressLongButon();
+                            cells[position / cells[0].length][position % cells[0].length].pressLongButton();
                             ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
                         }
                         flags.setText(String.valueOf(count));
@@ -239,7 +245,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         Iterator itr = setFlags.iterator();
         while (itr.hasNext()) {
             indexMine = (int) itr.next();
-            cells[indexMine / cells.length][indexMine % cells[0].length].pressButon();
+            cells[indexMine / cells.length][indexMine % cells[0].length].pressButton();
             ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
         }
     }
@@ -293,17 +299,23 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                                 Thread.sleep(800);
                                 GameActivity.this.runOnUiThread(new Runnable() {
                                     public void run() {
-                                        Intent intent = new Intent(GameActivity.this, ResultActivity.class);
+                                        Intent intent;
+                                        if (userInfo.size() < 10 || userInfo.get(userInfo.size()-1).getPoints() > seconds)
+                                            intent = new Intent(GameActivity.this, ScoreActivity.class);
+                                        else
+                                            intent = new Intent(GameActivity.this, ResultActivity.class);
+
+                                        intent.putExtra("Index", userInfo.size()-1);
                                         intent.putExtra("Result", WIN);
                                         intent.putExtra("Points", seconds);
                                         intent.putExtra("Difficulty", chosenLevel);
                                         intent.putExtra("Volume", isMute);
-                                        if(currentLocation!=null) {
+                                        if (currentLocation != null) {
                                             intent.putExtra("locationlat", currentLocation.getLatitude());
                                             intent.putExtra("locationlong", currentLocation.getLongitude());
                                         }
                                         startActivity(intent);
-                                        overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
+                                        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
                                     }
                                 });
                                 break;
@@ -466,14 +478,14 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
 
         else if (cells[x][y].getStatus() > 0) {
             if(cells[x][y].pressed() == false) {
-                cells[x][y].pressButon();
+                cells[x][y].pressButton();
                 countOfPressed++;
                 ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
             }
             return;
         }
         if (cells[x][y].getStatus() == 0 && cells[x][y].pressed() == false && cells[x][y].longPressed() == false) {
-            cells[x][y].pressButon();
+            cells[x][y].pressButton();
             countOfPressed++;
             ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
             openCellRec(x - 1, y); //left
@@ -574,6 +586,11 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     public void onAccuracyChanged(Sensor sensor, int i) {
     }
 
+    @Override
+    public void performQuery(ArrayList<UserInfo> easyUsers) {
+        userInfo=new ArrayList<>();
+        userInfo.addAll(easyUsers);
+    }
 }
 
 // this class describes a cell in the game
@@ -602,7 +619,7 @@ class MineSweeperCell {
     }
 
     // chang cell status to be pressed
-    public void pressButon() {
+    public void pressButton() {
         this.isPressed = true;
     }
 
@@ -615,7 +632,7 @@ class MineSweeperCell {
     }
 
     //returns if cell was long pressed
-    public void pressLongButon() {
+    public void pressLongButton() {
         this.isLongPressed ^= true;
     }
 
