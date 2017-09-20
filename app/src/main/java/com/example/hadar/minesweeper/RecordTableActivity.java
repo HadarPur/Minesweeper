@@ -2,49 +2,106 @@ package com.example.hadar.minesweeper;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+
 public class RecordTableActivity extends AppCompatActivity  {
     private static final String TAG =RecordTableActivity.class.getSimpleName();
+    private static final int EAZY=0, NORMAL=1, HARD=2;
     private SupportMapFragment mapFragment;
     private TableFrame tableFragment;
     private LatLng sydney;
     private double latitude, longitude;
-    private boolean firstAsk=false;
     private GPSTracker gpsTracker;
-    private JsonData data;
-    private Bundle ex;
+    private ArrayList<UserInfo> easyUsers;
+    private boolean firstAsk=false;
+    private Button easyButton,mediumButton,hardButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_table);
-        JsonData firebaseData = new JsonData();
-
+        // JsonData firebaseData = new JsonData();
         gpsTracker = new GPSTracker(this, firstAsk);
         if(gpsTracker.getGPSEnable()&& gpsTracker.getPosition()!=null){
             latitude=gpsTracker.getPosition().getLatitude();
             longitude=gpsTracker.getPosition().getLongitude();
             gpsTracker.initLocation();
         }
-        else {
+        else{
             showSettingsAlert();
             latitude=0;
             longitude=0;
         }
-
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        //gpsTracker = new GPSTracker(getApplicationContext());
         Map map = new Map(mapFragment,latitude,longitude);
         tableFragment= (TableFrame) getSupportFragmentManager().findFragmentById(R.id.table);
+        easyButton= (Button) findViewById(R.id.easy);
+        mediumButton= (Button) findViewById(R.id.Normal);
+        hardButton= (Button) findViewById(R.id.hard);
+
+        easyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showMessage();
+                easyButton.setBackgroundResource(R.drawable.tableopen);
+                mediumButton.setBackgroundResource(R.drawable.table);
+                hardButton.setBackgroundResource(R.drawable.table);
+                tableFragment.setList(EAZY);
+            }
+        });
+
+        mediumButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showMessage();
+                easyButton.setBackgroundResource(R.drawable.table);
+                mediumButton.setBackgroundResource(R.drawable.tableopen);
+                hardButton.setBackgroundResource(R.drawable.table);
+                tableFragment.setList(NORMAL);
+            }
+        });
+
+        hardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showMessage();
+                easyButton.setBackgroundResource(R.drawable.table);
+                mediumButton.setBackgroundResource(R.drawable.table);
+                hardButton.setBackgroundResource(R.drawable.tableopen);
+                tableFragment.setList(HARD);
+            }
+        });
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        showMessage();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    private void showMessage(){
+
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(this, "click your location to see results", duration);
+        toast.show();
     }
 
     public void showSettingsAlert() {
@@ -67,3 +124,5 @@ public class RecordTableActivity extends AppCompatActivity  {
         alertDialog.show();
     }
 }
+
+

@@ -15,13 +15,8 @@ public class ResultActivity extends AppCompatActivity {
     private static final String TAG =ResultActivity.class.getSimpleName();
     private ImageView imageView;
     private TextView tv;
-    private TextView nametxt;
-    private EditText info;
-    private Button save;
     private int result, points, level, isMute;
     private String name;
-    private double latitude;
-    private double longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,27 +72,18 @@ public class ResultActivity extends AppCompatActivity {
     public void getResult() {
         imageView=(ImageView) findViewById(R.id.res);
         tv = (TextView) findViewById(R.id.points);
-        nametxt = (TextView) findViewById(R.id.enterName);
-        info = (EditText) findViewById(R.id.recordName);
-        save = (Button) findViewById(R.id.sendName);
-        nametxt.setVisibility(View.INVISIBLE);
-        info.setVisibility(View.INVISIBLE);
-        save.setVisibility(View.INVISIBLE);
+
         Intent intent=getIntent();
         Bundle ex=intent.getExtras();
         result=ex.getInt("Result");
         points=ex.getInt("Points");
         level=ex.getInt("Difficulty");
         isMute=ex.getInt("Volume");
-        latitude=ex.getDouble("locationlat");
-        longitude=ex.getDouble("locationlong");
-        Log.d(TAG,"location: ( "+latitude+" , "+longitude+" )");
 
         if (result==0)
             lose();
         else
             win();
-
     }
 
     //img view for the loser
@@ -110,22 +96,5 @@ public class ResultActivity extends AppCompatActivity {
         imageView.setBackgroundResource(R.drawable.winning);
         tv.setBackgroundResource(R.drawable.table);
         tv.setText("TIME: " +points+ " SEC");
-        tv.bringToFront();
-        nametxt.setVisibility(View.VISIBLE);
-        nametxt.setText("enter yout name:");
-        info.setVisibility(View.VISIBLE);
-        save.setVisibility(View.VISIBLE);
-        save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                name=info.getText().toString();
-                UserInfo user = new UserInfo(name,latitude,longitude,points,level);
-                JsonData firebaseData = new JsonData();
-                firebaseData.writeUserToDataBase(user,level);
-                nametxt.setVisibility(View.INVISIBLE);
-                info.setVisibility(View.INVISIBLE);
-                v.setVisibility(View.INVISIBLE);
-            }
-        });
     }
 }
