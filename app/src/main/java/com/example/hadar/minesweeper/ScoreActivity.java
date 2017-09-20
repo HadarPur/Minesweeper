@@ -18,7 +18,6 @@ public class ScoreActivity extends AppCompatActivity {
     private String name;
     private Button save, cancel;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

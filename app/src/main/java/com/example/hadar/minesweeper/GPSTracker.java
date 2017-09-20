@@ -58,7 +58,8 @@ public class GPSTracker extends Service implements LocationListener {
                     }
                 }
             }
-            else {
+            else
+                {
                 // for older versions
                 requestLocation();
             }
@@ -114,7 +115,6 @@ public class GPSTracker extends Service implements LocationListener {
     }
 
     public boolean getGPSEnable(){
-
         return isGPSEnabled;
     }
 

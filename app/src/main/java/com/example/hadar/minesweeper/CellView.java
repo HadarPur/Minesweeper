@@ -21,6 +21,5 @@ public class CellView extends FrameLayout {
         txt.setTextSize(25);
         txt.setTextColor(Color.BLACK);
         this.addView(txt);
-
     }
 }

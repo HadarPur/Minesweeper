@@ -7,12 +7,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.hadar.minesweeper.quaries.CallData;
-
 import java.util.ArrayList;
 
 public class TableFrame extends Fragment implements CallData {
@@ -20,43 +20,48 @@ public class TableFrame extends Fragment implements CallData {
     private ListView recordsList;
     private ArrayList<UserInfo> usersData;
     private ArrayList<String> users;
-    private  ArrayAdapter<String> adapter;
+    private ArrayAdapter<String> adapter;
     private JsonData data;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         usersData = new ArrayList<>();
         users = new ArrayList<>();
-        //Log.d(TAG,"create the data");
         data = new JsonData();
+
         data.readResults(this,0);
         recordsList=new ListView(getContext());
         adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1,users);
         recordsList.setAdapter(adapter);
-        recordsList.setBackgroundColor(Color.WHITE);
+        recordsList.setBackgroundColor(Color.argb(200, 165,205,253));
+
         return recordsList;
     }
 
     @Override
-    public void performQuary(ArrayList<UserInfo> usersInfo) {
+    public void performQuery(ArrayList<UserInfo> usersInfo) {
         usersData.clear();
         usersData.addAll(usersInfo);
         for(int i=0; i<usersData.size();i++) {
-            UserInfo user = usersData.get(i);
             users.add(usersData.get(i).toString());
         }
-        Log.d("TAG","data arrived");
+        Log.d(TAG,"data arrived");
     }
 
-    public void setList(int Lavel){
+    public void setList(int Level){
         usersData.clear();
         users.clear();
         adapter.notifyDataSetChanged();
-        data.readResults(this,Lavel);
+        data.readResults(this,Level);
         adapter.notifyDataSetChanged();
     }
 
-    public ArrayList<UserInfo> getUserInfo() {
+    public ListView getList() {
+        return recordsList;
+    }
+
+    public ArrayList<UserInfo> getArray() {
         return usersData;
     }
+
 }

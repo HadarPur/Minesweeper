@@ -1,32 +1,28 @@
 package com.example.hadar.minesweeper;
-import android.util.Log;
 
+import android.util.Log;
 import com.example.hadar.minesweeper.quaries.CallData;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class JsonData implements Serializable {
+    private static final int EASY=0, NORMAL=1, HARD=2;
     private static final String TAG = "data";
-    // private String data;
-    private UserInfo user;
     private UserInfo readed;
-    //DatabaseReference rootRef;
-    DatabaseReference myRefEasy;
-    DatabaseReference myRefMedium;
-    DatabaseReference myRefHard;
     private ArrayList<UserInfo> easyUsers;
     private ArrayList<UserInfo> normalUsers;
     private ArrayList<UserInfo> hardUsers;
+    private DatabaseReference myRefEasy;
+    private DatabaseReference myRefMedium;
+    private DatabaseReference myRefHard;
 
     public JsonData() {
-
         FirebaseDatabase date = FirebaseDatabase.getInstance();
         myRefEasy = date.getReference("EasyRecords");
         myRefMedium = date.getReference("MediumRecords");
@@ -37,33 +33,35 @@ public class JsonData implements Serializable {
     }
 
     public void writeUserToDataBase(UserInfo user, int level) {
-
         switch (level) {
-            case 0:
+            case EASY:
                 myRefEasy.push().setValue(user);
                 break;
-            case 1:
+            case NORMAL:
                 myRefMedium.push().setValue(user);
                 break;
-            case 2:
+            case HARD:
                 myRefHard.push().setValue(user);
                 break;
         }
-
     }
 
     public void readResults(final CallData queryCallback,int level) {
-
         Log.d(TAG, "start reading");
         switch (level) {
-            case 0: callingEvent(myRefEasy,queryCallback,level); break;
-            case 1: callingEvent(myRefMedium,queryCallback,level); break;
-            case 2:callingEvent(myRefHard,queryCallback,level); break;
+            case EASY:
+                callingEvent(myRefEasy,queryCallback,level);
+                break;
+            case NORMAL:
+                callingEvent(myRefMedium,queryCallback,level);
+                break;
+            case HARD:
+                callingEvent(myRefHard,queryCallback,level);
+                break;
         }
     }
 
     private void callingEvent(DatabaseReference myRef, final CallData queryCallback, final int level){
-
         easyUsers.clear();
         normalUsers.clear();
         hardUsers.clear();
@@ -71,20 +69,31 @@ public class JsonData implements Serializable {
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
                 Iterator<DataSnapshot> itr = dataSnapshot.getChildren().iterator();
                 while(itr.hasNext()) {
                     readed = itr.next().getValue(UserInfo.class);
                     switch (level) {
-                        case 0: easyUsers.add(readed); break;
-                        case 1: normalUsers.add(readed); break;
-                        case 2: hardUsers.add(readed); break;
+                        case EASY:
+                            easyUsers.add(readed);
+                            break;
+                        case NORMAL:
+                            normalUsers.add(readed);
+                            break;
+                        case HARD:
+                            hardUsers.add(readed);
+                            break;
                     }
                 }
                 switch (level) {
-                    case 0: queryCallback.performQuary(easyUsers); break;
-                    case 1: queryCallback.performQuary(normalUsers); break;
-                    case 2: queryCallback.performQuary(hardUsers); break;
+                    case EASY:
+                        queryCallback.performQuery(easyUsers);
+                        break;
+                    case NORMAL:
+                        queryCallback.performQuery(normalUsers);
+                        break;
+                    case HARD:
+                        queryCallback.performQuery(hardUsers);
+                        break;
                 }
             }
             @Override
@@ -92,6 +101,5 @@ public class JsonData implements Serializable {
 
             }
         });
-
     }
 }

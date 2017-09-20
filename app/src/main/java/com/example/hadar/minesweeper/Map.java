@@ -1,30 +1,21 @@
 package com.example.hadar.minesweeper;
 
-import android.location.Location;
 import android.util.Log;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-
 public class Map implements OnMapReadyCallback {
     private static final String TAG ="map";
     private SupportMapFragment mapFragment;
     private GoogleMap mMap;
-    private Location loc;
-    private TableFrame tableFrame;
     private Marker mCurrLocationMarker;
-    private Marker[] mPlayerMarkers;
     private double latitude, longitude;
-    //GPSTracker gpsTracker;
 
     public Map(SupportMapFragment mapFragment,double latitude,double longitude){
         this.mapFragment=mapFragment;
@@ -35,14 +26,12 @@ public class Map implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         mMap = googleMap;
-
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
+        Log.d(TAG,"set my location");
         setMyLocationOnTheMap();
-        //setMarkersOnMap();
     }
 
     public void setMyLocationOnTheMap() {
@@ -58,22 +47,20 @@ public class Map implements OnMapReadyCallback {
         mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
     }
 
-    public void setMarkersOnMap() {
+    public void setMarkersOnMap(UserInfo userInfo) {
+        //place users markers
+        mMap.clear();
+        setMyLocationOnTheMap();
         MarkerOptions markerOptions = new MarkerOptions();
-        ArrayList<UserInfo> users= new ArrayList<>();
+        Log.d(TAG,"set Markers array");
 
-        users.addAll(tableFrame.getUserInfo());
-        mPlayerMarkers=new Marker[users.size()];
-
-        Log.d(TAG,"size = "+users.size());
-        for(int i=0; i<users.size();i++) {
-            UserInfo user = users.get(i);
-            LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
-            markerOptions.position(latLng);
-            markerOptions.title(user.getName()+ " , score:" +user.getPoints());
-            markerOptions.snippet("location:" +user.getLatitude()+","+user.getLongitude());
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker));
-            mPlayerMarkers[i]=mMap.addMarker(markerOptions);
-        }
+        LatLng latLng = new LatLng(userInfo.getLatitude(), userInfo.getLongitude());
+        markerOptions.position(latLng);
+        markerOptions.title(userInfo.getName() + " , score:" + userInfo.getPoints());
+        markerOptions.snippet("location:" + userInfo.getLatitude() + "," + userInfo.getLongitude());
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.pos));
+        mMap.addMarker(markerOptions);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
     }
 }

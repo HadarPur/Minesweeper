@@ -2,52 +2,64 @@ package com.example.hadar.minesweeper;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
 public class RecordTableActivity extends AppCompatActivity  {
     private static final String TAG =RecordTableActivity.class.getSimpleName();
-    private static final int EAZY=0, NORMAL=1, HARD=2;
+    private static final int EASY=0, NORMAL=1, HARD=2;
     private SupportMapFragment mapFragment;
     private TableFrame tableFragment;
-    private LatLng sydney;
     private double latitude, longitude;
     private GPSTracker gpsTracker;
-    private ArrayList<UserInfo> easyUsers;
     private boolean firstAsk=false;
+    private Map map;
+    private ArrayList<UserInfo> arrayList=new ArrayList<>();
     private Button easyButton,mediumButton,hardButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_table);
-        // JsonData firebaseData = new JsonData();
         gpsTracker = new GPSTracker(this, firstAsk);
         if(gpsTracker.getGPSEnable()&& gpsTracker.getPosition()!=null){
             latitude=gpsTracker.getPosition().getLatitude();
             longitude=gpsTracker.getPosition().getLongitude();
             gpsTracker.initLocation();
         }
-        else{
+        else {
             showSettingsAlert();
             latitude=0;
             longitude=0;
         }
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        Map map = new Map(mapFragment,latitude,longitude);
+        map = new Map(mapFragment,latitude,longitude);
         tableFragment= (TableFrame) getSupportFragmentManager().findFragmentById(R.id.table);
+        ListView list=tableFragment.getList();
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                map.setMarkersOnMap(tableFragment.getArray().get(position));
+            }
+        });
+        setButtons();
+    }
+
+    public void setButtons() {
         easyButton= (Button) findViewById(R.id.easy);
         mediumButton= (Button) findViewById(R.id.Normal);
         hardButton= (Button) findViewById(R.id.hard);
@@ -59,7 +71,7 @@ public class RecordTableActivity extends AppCompatActivity  {
                 easyButton.setBackgroundResource(R.drawable.tableopen);
                 mediumButton.setBackgroundResource(R.drawable.table);
                 hardButton.setBackgroundResource(R.drawable.table);
-                tableFragment.setList(EAZY);
+                tableFragment.setList(EASY);
             }
         });
 
@@ -85,7 +97,6 @@ public class RecordTableActivity extends AppCompatActivity  {
             }
         });
     }
-
     @Override
     protected void onStart(){
         super.onStart();
@@ -98,7 +109,6 @@ public class RecordTableActivity extends AppCompatActivity  {
     }
 
     private void showMessage(){
-
         int duration = Toast.LENGTH_SHORT;
         Toast toast = Toast.makeText(this, "click your location to see results", duration);
         toast.show();

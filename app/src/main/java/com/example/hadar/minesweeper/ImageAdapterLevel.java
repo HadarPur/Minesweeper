@@ -71,5 +71,4 @@ public class ImageAdapterLevel extends BaseAdapter {
             }
         }
     }
-
 }

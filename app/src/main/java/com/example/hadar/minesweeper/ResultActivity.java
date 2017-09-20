@@ -16,7 +16,6 @@ public class ResultActivity extends AppCompatActivity {
     private ImageView imageView;
     private TextView tv;
     private int result, points, level, isMute;
-    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
