@@ -18,12 +18,10 @@ public class Map implements OnMapReadyCallback {
     private static final String TAG ="map";
     private SupportMapFragment mapFragment;
     private GoogleMap mMap;
-    private Marker mCurrLocationMarker;
     private double latitude, longitude;
     private Context context;
     private Geocoder gc;
-    private LatLng MylatLng, PlayerlatLng;
-    private MarkerOptions markerOptionsMylocation, markerOptionsPlayerLocation;
+    private MarkerOptions markerOptionsMyLocation, markerOptionsPlayerLocation;
 
     public Map(SupportMapFragment mapFragment,double latitude,double longitude, Context context){
         this.mapFragment=mapFragment;
@@ -40,9 +38,6 @@ public class Map implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         try {
             mMap = googleMap;
-            if (mCurrLocationMarker != null) {
-                mCurrLocationMarker.remove();
-            }
             Log.d(TAG,"set my location");
             setMyLocationOnTheMap();
         } catch (IOException e) {
@@ -52,8 +47,8 @@ public class Map implements OnMapReadyCallback {
 
     public void setMyLocationOnTheMap() throws IOException {
         //to specific location
-        MylatLng = new LatLng(latitude, longitude);
-        markerOptionsMylocation = new MarkerOptions();
+        LatLng MyLatLng = new LatLng(latitude, longitude);
+        markerOptionsMyLocation = new MarkerOptions();
 
         //to specific address
         List<android.location.Address> ls=gc.getFromLocation(latitude, longitude, 1);
@@ -61,23 +56,23 @@ public class Map implements OnMapReadyCallback {
         String location=address.getLocality();
 
         //Place current location marker
-        markerOptionsMylocation.position(MylatLng);
-        markerOptionsMylocation.title("Current Position");
-        markerOptionsMylocation.snippet("Location: " + location);
-        mCurrLocationMarker = mMap.addMarker(markerOptionsMylocation);
+        markerOptionsMyLocation.position(MyLatLng);
+        markerOptionsMyLocation.title("Current Position");
+        markerOptionsMyLocation.snippet("Location: " + location);
+        mMap.addMarker(markerOptionsMyLocation);
 
         //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(MylatLng));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(MyLatLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
     }
 
     public void setMarkersOnMap(UserInfo userInfo) throws IOException {
         //place users markers
         mMap.clear();
-        mMap.addMarker(markerOptionsMylocation);
+        mMap.addMarker(markerOptionsMyLocation);
 
         //to specific location
-        PlayerlatLng = new LatLng(userInfo.getLatitude(), userInfo.getLongitude());
+        LatLng PlayerLatLng = new LatLng(userInfo.getLatitude(), userInfo.getLongitude());
         markerOptionsPlayerLocation = new MarkerOptions();
         Log.d(TAG,"set Markers array");
 
@@ -87,14 +82,14 @@ public class Map implements OnMapReadyCallback {
         String location=address.getLocality();
 
         //set markers on the map
-        markerOptionsPlayerLocation.position(PlayerlatLng);
+        markerOptionsPlayerLocation.position(PlayerLatLng);
         markerOptionsPlayerLocation.title("Name: "+userInfo.getName() + " , Time: " + userInfo.getPoints());
         markerOptionsPlayerLocation.snippet("Location: " + location);
         markerOptionsPlayerLocation.icon(BitmapDescriptorFactory.fromResource(R.drawable.pos));
         mMap.addMarker(markerOptionsPlayerLocation);
 
         //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(PlayerlatLng));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(PlayerLatLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
     }
 }
