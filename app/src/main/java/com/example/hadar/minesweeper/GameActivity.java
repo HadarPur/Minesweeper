@@ -12,6 +12,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -41,6 +43,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     public static final int BOARD_CELL10 = 10, BOARD_CELL5 = 5;
     public static final int EASY_FLAGS = 5, HARD_FLAGS = 10;
     public static final int LOSS = 0, WIN = 1;
+    public final int MAX_RECORDS=10;
     private long lastUpdate = 0;
     private float oldX,oldY,oldZ;
     public int count, seconds, countOfPressed, chosenLevel, isMute;
@@ -77,6 +80,9 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         win=MediaPlayer.create(this, R.raw.win);
         setOnClickButton();
         createNewGame();
+
+        if (!isNetworkAvailable(this))
+            showConnectionInternetFailed();
     }
 
     public  void setOnClickButton () {
@@ -301,19 +307,20 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                                     public void run() {
                                         Intent intent=null;
                                         if(userInfo.size()>0) {
-                                            if (userInfo.size() < 4 || userInfo.get(userInfo.size() - 1).getPoints() > seconds) {
+                                            if ((userInfo.size() < MAX_RECORDS || userInfo.get(userInfo.size() - 1).getPoints() > seconds)
+                                                    && isNetworkAvailable(getApplicationContext())){
                                                 intent = new Intent(GameActivity.this, ScoreActivity.class);
                                             }
                                             else
                                                 intent = new Intent(GameActivity.this, ResultActivity.class);
                                         }
 
-                                        else{
-
+                                        else if (isNetworkAvailable(getApplicationContext()))
                                             intent = new Intent(GameActivity.this, ScoreActivity.class);
-                                        }
+                                        else
+                                            intent = new Intent(GameActivity.this, ResultActivity.class);
 
-                                        intent.putExtra("Index", userInfo.size());
+                                        intent.putExtra("list", userInfo);
                                         intent.putExtra("Result", WIN);
                                         intent.putExtra("Points", seconds);
                                         intent.putExtra("Difficulty", chosenLevel);
@@ -600,6 +607,34 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         userInfo=new ArrayList<>();
         userInfo.addAll(easyUsers);
 
+    }
+
+
+    public void showConnectionInternetFailed() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Network Connection Failed");
+        alertDialog.setMessage("Network is not enabled." +
+                "If you want to get in to record table you need" +
+                "a connection to the internet / wifi");
+        alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        alertDialog.show();
+    }
+
+    public static boolean isNetworkAvailable(Context ctx) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if ((connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE) != null
+                && connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED)
+                || (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
+                && connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED)) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 

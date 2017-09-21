@@ -1,7 +1,10 @@
 package com.example.hadar.minesweeper;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -38,6 +41,9 @@ public class RecordTableActivity extends AppCompatActivity  {
             latitude=0;
             longitude=0;
         }
+
+        if (!isNetworkAvailable(this))
+            showConnectionInternetFailed();
     }
 
     @Override
@@ -137,6 +143,33 @@ public class RecordTableActivity extends AppCompatActivity  {
             }
         });
         alertDialog.show();
+    }
+
+    public void showConnectionInternetFailed() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Network Connection Failed");
+        alertDialog.setMessage("Network is not enabled." +
+                "If you want to see record table you need" +
+                "a connection to the internet / wifi");
+        alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        alertDialog.show();
+    }
+
+    public static boolean isNetworkAvailable(Context ctx) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if ((connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE) != null
+                && connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED)
+                || (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
+                && connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED)) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 

@@ -9,9 +9,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class ScoreActivity extends AppCompatActivity {
     private static final String TAG =ScoreActivity.class.getSimpleName();
     public final int WIN=1;
+    public final int MAX_RECORDS=10;
     private TextView nametv;
     private EditText info;
     private double latitude;
@@ -19,6 +22,7 @@ public class ScoreActivity extends AppCompatActivity {
     private int points, level, isMute, index;
     private String name;
     private Button save, cancel;
+    private ArrayList<UserInfo> myList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +49,7 @@ public class ScoreActivity extends AppCompatActivity {
     public void getResult() {
         Intent intent=getIntent();
         Bundle ex=intent.getExtras();
-        index=ex.getInt("Index");
+        myList = (ArrayList<UserInfo>) getIntent().getSerializableExtra("list");
         points=ex.getInt("Points");
         level=ex.getInt("Difficulty");
         isMute=ex.getInt("Volume");
@@ -56,13 +60,18 @@ public class ScoreActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 name=info.getText().toString();
-                Log.d(TAG,"index : "+index);
+                index=myList.size();
                 UserInfo user = new UserInfo(index,name,latitude,longitude,points,level);
                 JsonData firebaseData = new JsonData();
-                if (index>3)
-                    firebaseData.replaceUserInDataBase(user, level);
-                else
-                    firebaseData.writeUserToDataBase(user,level);
+                Log.d(TAG,"array size is: "+index);
+                if (index>=MAX_RECORDS) {
+                    Log.d(TAG,"replace");
+                    firebaseData.replaceUserInDataBase(user, level, myList);
+                }
+                else {
+                    Log.d(TAG,"insert");
+                    firebaseData.writeUserToDataBase(user, level);
+                }
                 nextActivity();
             }
         });

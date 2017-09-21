@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -21,7 +23,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Intent intent;
     private MediaPlayer open_song;
     private GPSTracker gpsTracker ;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void showSettingsAlert() {
+   public void showSettingsAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("GPS is settings");
         alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
@@ -139,4 +140,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         alertDialog.show();
     }
+
 }

@@ -37,30 +37,29 @@ public class JsonData implements Serializable {
         switch (level) {
             case EASY:
                 myRefEasy.child(" "+user.getKey()).setValue(user);
-                //myRefEasy.push().setValue(user);
-                /*myRefEasy.child(" "+user.getKey());
-                myRefEasy.setValue(user);*/
                 break;
             case NORMAL:
-                myRefMedium.push().setValue(user);
+                myRefMedium.child(" "+user.getKey()).setValue(user);
                 break;
             case HARD:
-                myRefHard.push().setValue(user);
+                myRefHard.child(" "+user.getKey()).setValue(user);
                 break;
         }
     }
 
-    public void replaceUserInDataBase(UserInfo user, int level) {
+    public void replaceUserInDataBase(UserInfo user, int level,ArrayList<UserInfo> users) {
+
+        String key = " "+users.get(users.size()-1).getKey();
         switch (level) {
             case EASY:
-                String key = " "+easyUsers.get(easyUsers.size()-1).getKey();
+
                 myRefEasy.child(key).setValue(user);
                 break;
             case NORMAL:
-                myRefMedium.push().setValue(user);
+                myRefMedium.child(key).setValue(user);
                 break;
             case HARD:
-                myRefHard.push().setValue(user);
+                myRefHard.child(key).setValue(user);
                 break;
         }
     }

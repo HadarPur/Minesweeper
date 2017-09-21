@@ -84,9 +84,9 @@ public class Map implements OnMapReadyCallback {
 
         //set markers on the map
         markerOptionsPlayerLocation.position(PlayerLatLng);
-        markerOptionsPlayerLocation.title("Name: "+userInfo.getName() + " , Time: " + userInfo.getPoints());
+        markerOptionsPlayerLocation.title("Name: "+userInfo.getName() + " , Time: " + userInfo.getPoints()+" sec");
         markerOptionsPlayerLocation.snippet("Location: " + location);
-        markerOptionsPlayerLocation.icon(BitmapDescriptorFactory.fromResource(R.drawable.pos));
+        markerOptionsPlayerLocation.icon(BitmapDescriptorFactory.fromResource(R.drawable.mark));
         mMap.addMarker(markerOptionsPlayerLocation);
 
         //move map camera

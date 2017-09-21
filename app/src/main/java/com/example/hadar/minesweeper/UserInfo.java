@@ -2,7 +2,9 @@ package com.example.hadar.minesweeper;
 
 import android.util.Log;
 
-public class UserInfo {
+import java.io.Serializable;
+
+public class UserInfo implements Serializable {
     private static final String TAG ="user";
     private int key;
     private String name;
@@ -60,7 +62,7 @@ public class UserInfo {
 
     public String toString(){
         String objectString=" ";
-        objectString += " Name: " +this.name+ " , Time: "+this.points+" ";
+        objectString += "Player Name: " +this.name+ " , Time: "+this.points+" sec ";
         Log.d(TAG,"string = "+ objectString);
         return objectString;
     }
