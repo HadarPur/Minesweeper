@@ -71,18 +71,20 @@ public class ResultActivity extends AppCompatActivity {
     public void getResult() {
         imageView=(ImageView) findViewById(R.id.res);
         tv = (TextView) findViewById(R.id.points);
-
+        Bundle ex;
         Intent intent=getIntent();
-        Bundle ex=intent.getExtras();
-        result=ex.getInt("Result");
-        points=ex.getInt("Points");
-        level=ex.getInt("Difficulty");
-        isMute=ex.getInt("Volume");
+        if (intent!=null) {
+            ex = intent.getExtras();
+            result = ex.getInt("Result");
+            points = ex.getInt("Points");
+            level = ex.getInt("Difficulty");
+            isMute = ex.getInt("Volume");
 
-        if (result==0)
-            lose();
-        else
-            win();
+            if (result == 0)
+                lose();
+            else
+                win();
+        }
     }
 
     //img view for the loser

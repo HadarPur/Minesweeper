@@ -49,17 +49,18 @@ public class JsonData implements Serializable {
 
     public void replaceUserInDataBase(UserInfo user, int level,ArrayList<UserInfo> users) {
 
-        String key = " "+users.get(users.size()-1).getKey();
+        int key = users.get(users.size()-1).getKey();
+        String keyStr = " "+key;
+        user.setKey(key);
         switch (level) {
             case EASY:
-
-                myRefEasy.child(key).setValue(user);
+                myRefEasy.child(keyStr).setValue(user);
                 break;
             case NORMAL:
-                myRefMedium.child(key).setValue(user);
+                myRefMedium.child(keyStr).setValue(user);
                 break;
             case HARD:
-                myRefHard.child(key).setValue(user);
+                myRefHard.child(keyStr).setValue(user);
                 break;
         }
     }

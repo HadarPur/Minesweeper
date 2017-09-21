@@ -76,8 +76,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         accelerometer = sensormanager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensormanager.registerListener(this, accelerometer , SensorManager.SENSOR_DELAY_NORMAL);
         newGame=(ImageButton)findViewById(R.id.smile);
-        bomb=MediaPlayer.create(this, R.raw.bomb);
-        win=MediaPlayer.create(this, R.raw.win);
+
         setOnClickButton();
         createNewGame();
 
@@ -236,8 +235,10 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     }
 
     public void explodeVictoryAnimation() {
-        if (isMute==1)
+        if (isMute==1) {
+            win=MediaPlayer.create(this, R.raw.win);
             win.start();
+        }
         explode.explode(newGame);
         explode.explode(flags);
         explode.explode(timeout);
@@ -246,8 +247,10 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
 
     public void showAllMines() {
         int indexMine;
-        if (isMute==1)
+        if (isMute==1) {
+            bomb=MediaPlayer.create(this, R.raw.bomb);
             bomb.start();
+        }
         Iterator itr = setFlags.iterator();
         while (itr.hasNext()) {
             indexMine = (int) itr.next();
@@ -311,8 +314,10 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                                                     && isNetworkAvailable(getApplicationContext())){
                                                 intent = new Intent(GameActivity.this, ScoreActivity.class);
                                             }
-                                            else
+
+                                            else {
                                                 intent = new Intent(GameActivity.this, ResultActivity.class);
+                                            }
                                         }
 
                                         else if (isNetworkAvailable(getApplicationContext()))

@@ -60,9 +60,11 @@ public class UserInfo implements Serializable {
         return this.level;
     }
 
+    public void setKey(int key){ this.key=key; }
+
     public String toString(){
         String objectString=" ";
-        objectString += "Player Name: " +this.name+ " , Time: "+this.points+" sec ";
+        objectString += " Name: " +this.name+ "  , Time: "+this.points+" sec";
         Log.d(TAG,"string = "+ objectString);
         return objectString;
     }

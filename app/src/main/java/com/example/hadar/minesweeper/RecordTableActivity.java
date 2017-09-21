@@ -3,6 +3,7 @@ package com.example.hadar.minesweeper;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,7 @@ public class RecordTableActivity extends AppCompatActivity  {
     private static final int EASY=0, NORMAL=1, HARD=2;
     private boolean firstAsk=false;
     private double latitude, longitude;
+    private int level;
     private SupportMapFragment mapFragment;
     private TableFrame tableFragment;
     private GPSTracker gpsTracker;
@@ -63,13 +65,14 @@ public class RecordTableActivity extends AppCompatActivity  {
                 }
             }
         });
+
         setButtons();
     }
 
     public void setButtons() {
-        easyButton= (Button) findViewById(R.id.easy);
-        mediumButton= (Button) findViewById(R.id.Normal);
-        hardButton= (Button) findViewById(R.id.hard);
+        easyButton = (Button) findViewById(R.id.easy);
+        mediumButton = (Button) findViewById(R.id.Normal);
+        hardButton = (Button) findViewById(R.id.hard);
 
         easyButton.setOnClickListener(new View.OnClickListener() {
             @Override
