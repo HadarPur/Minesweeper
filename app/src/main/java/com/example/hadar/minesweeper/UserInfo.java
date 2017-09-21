@@ -54,7 +54,7 @@ public class UserInfo {
 
     public String toString(){
         String objectString=" ";
-        objectString += "Player Name: " +this.name+ "  -------->  Score: "+this.points+" ";
+        objectString += "Player Name: " +this.name+ "  -------->  Time Finish: "+this.points+" ";
         Log.d(TAG,"string = "+ objectString);
         return objectString;
     }

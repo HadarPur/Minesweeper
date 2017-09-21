@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.SupportMapFragment;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class RecordTableActivity extends AppCompatActivity  {
@@ -46,13 +47,17 @@ public class RecordTableActivity extends AppCompatActivity  {
     protected void onResumeFragments() {
         super.onResumeFragments();
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        map = new Map(mapFragment,latitude,longitude);
+        map = new Map(mapFragment,latitude,longitude, this);
         tableFragment= (TableFrame) getSupportFragmentManager().findFragmentById(R.id.table);
         ListView list=tableFragment.getList();
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                map.setMarkersOnMap(tableFragment.getArray().get(position));
+                try {
+                    map.setMarkersOnMap(tableFragment.getArray().get(position));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
         setButtons();
