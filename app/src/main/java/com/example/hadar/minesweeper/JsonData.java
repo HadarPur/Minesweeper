@@ -36,7 +36,10 @@ public class JsonData implements Serializable {
     public void writeUserToDataBase(UserInfo user, int level) {
         switch (level) {
             case EASY:
-                myRefEasy.push().setValue(user);
+                myRefEasy.child(" "+user.getKey()).setValue(user);
+                //myRefEasy.push().setValue(user);
+                /*myRefEasy.child(" "+user.getKey());
+                myRefEasy.setValue(user);*/
                 break;
             case NORMAL:
                 myRefMedium.push().setValue(user);
@@ -47,16 +50,17 @@ public class JsonData implements Serializable {
         }
     }
 
-    public void deleteUserFromDataBase(int index, int level) {
+    public void replaceUserInDataBase(UserInfo user, int level) {
         switch (level) {
             case EASY:
-                deleteEvent(myRefEasy);
+                String key = " "+easyUsers.get(easyUsers.size()-1).getKey();
+                myRefEasy.child(key).setValue(user);
                 break;
             case NORMAL:
-                deleteEvent(myRefMedium);
+                myRefMedium.push().setValue(user);
                 break;
             case HARD:
-                deleteEvent(myRefHard);
+                myRefHard.push().setValue(user);
                 break;
         }
     }
@@ -114,27 +118,6 @@ public class JsonData implements Serializable {
                         break;
                 }
             }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void deleteEvent(final DatabaseReference myRef) {
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "start deleting");
-                String key="";
-                Iterator<DataSnapshot> itr = dataSnapshot.getChildren().iterator();
-                while(itr.hasNext()) {
-                    key = itr.next().getKey();
-                }
-                Log.d(TAG, "key: "+ key);
-                myRef.child(key).removeValue();
-            }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 

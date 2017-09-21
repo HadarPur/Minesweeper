@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class ScoreActivity extends AppCompatActivity {
+    private static final String TAG =ScoreActivity.class.getSimpleName();
     public final int WIN=1;
     private TextView nametv;
     private EditText info;
@@ -55,10 +56,11 @@ public class ScoreActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 name=info.getText().toString();
-                UserInfo user = new UserInfo(name,latitude,longitude,points,level);
+                Log.d(TAG,"index : "+index);
+                UserInfo user = new UserInfo(index,name,latitude,longitude,points,level);
                 JsonData firebaseData = new JsonData();
-                if (index>=9)
-                    firebaseData.deleteUserFromDataBase(index, level);
+                if (index>3)
+                    firebaseData.replaceUserInDataBase(user, level);
                 else
                     firebaseData.writeUserToDataBase(user,level);
                 nextActivity();

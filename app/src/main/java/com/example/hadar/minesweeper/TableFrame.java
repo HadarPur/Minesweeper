@@ -44,7 +44,7 @@ public class TableFrame extends Fragment implements CallData {
         usersData.clear();
         usersData.addAll(usersInfo);
         for(int i=0; i<usersData.size();i++) {
-            users.add(usersData.get(i).toString());
+            users.add("( "+(i+1)+" ) " +usersData.get(i).toString());
         }
         Log.d(TAG,"data arrived");
     }

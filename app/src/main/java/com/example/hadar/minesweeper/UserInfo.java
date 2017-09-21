@@ -4,6 +4,7 @@ import android.util.Log;
 
 public class UserInfo {
     private static final String TAG ="user";
+    private int key;
     private String name;
     private double latitude;
     private double longitude;
@@ -13,7 +14,8 @@ public class UserInfo {
     public UserInfo(){
     }
 
-    public UserInfo(String name,double latitude,double longitude,int points,int level){
+    public UserInfo(int key,String name,double latitude,double longitude,int points,int level){
+        this.key=key;
         this.name=name;
         this.latitude=latitude;
         this.longitude=longitude;
@@ -30,6 +32,10 @@ public class UserInfo {
                 this.level="hard";
                 break;
         }
+    }
+
+    public int getKey() {
+        return key;
     }
 
     public String getName() {
@@ -54,7 +60,7 @@ public class UserInfo {
 
     public String toString(){
         String objectString=" ";
-        objectString += "Player Name: " +this.name+ "  -------->  Time Finish: "+this.points+" ";
+        objectString += " Name: " +this.name+ " , Time: "+this.points+" ";
         Log.d(TAG,"string = "+ objectString);
         return objectString;
     }

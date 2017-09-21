@@ -21,6 +21,7 @@ public class Map implements OnMapReadyCallback {
     private double latitude, longitude;
     private Context context;
     private Geocoder gc;
+    private LatLng MyLatLng;
     private MarkerOptions markerOptionsMyLocation, markerOptionsPlayerLocation;
 
     public Map(SupportMapFragment mapFragment,double latitude,double longitude, Context context){
@@ -47,7 +48,7 @@ public class Map implements OnMapReadyCallback {
 
     public void setMyLocationOnTheMap() throws IOException {
         //to specific location
-        LatLng MyLatLng = new LatLng(latitude, longitude);
+        MyLatLng = new LatLng(latitude, longitude);
         markerOptionsMyLocation = new MarkerOptions();
 
         //to specific address
@@ -91,5 +92,12 @@ public class Map implements OnMapReadyCallback {
         //move map camera
         mMap.moveCamera(CameraUpdateFactory.newLatLng(PlayerLatLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+    }
+
+    public void moveCameraToCurrentPos() {
+        mMap.clear();
+        mMap.addMarker(markerOptionsMyLocation);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(MyLatLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
     }
 }

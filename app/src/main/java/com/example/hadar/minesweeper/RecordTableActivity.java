@@ -9,11 +9,8 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import com.google.android.gms.maps.SupportMapFragment;
-
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class RecordTableActivity extends AppCompatActivity  {
     private static final String TAG =RecordTableActivity.class.getSimpleName();
@@ -76,6 +73,8 @@ public class RecordTableActivity extends AppCompatActivity  {
                 mediumButton.setBackgroundResource(R.drawable.table);
                 hardButton.setBackgroundResource(R.drawable.table);
                 tableFragment.setList(EASY);
+                map.moveCameraToCurrentPos();
+
             }
         });
 
@@ -87,6 +86,7 @@ public class RecordTableActivity extends AppCompatActivity  {
                 mediumButton.setBackgroundResource(R.drawable.tableopen);
                 hardButton.setBackgroundResource(R.drawable.table);
                 tableFragment.setList(NORMAL);
+                map.moveCameraToCurrentPos();
             }
         });
 
@@ -98,6 +98,7 @@ public class RecordTableActivity extends AppCompatActivity  {
                 mediumButton.setBackgroundResource(R.drawable.table);
                 hardButton.setBackgroundResource(R.drawable.tableopen);
                 tableFragment.setList(HARD);
+                map.moveCameraToCurrentPos();
             }
         });
     }
@@ -114,7 +115,7 @@ public class RecordTableActivity extends AppCompatActivity  {
 
     private void showMessage(){
         int duration = Toast.LENGTH_SHORT;
-        Toast toast = Toast.makeText(this, "click your location to see results", duration);
+        Toast toast = Toast.makeText(this, "Click your location to see results", duration);
         toast.show();
     }
 

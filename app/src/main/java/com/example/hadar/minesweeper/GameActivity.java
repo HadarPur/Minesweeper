@@ -299,13 +299,21 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                                 Thread.sleep(800);
                                 GameActivity.this.runOnUiThread(new Runnable() {
                                     public void run() {
-                                        Intent intent;
-                                        if (userInfo.size() < 10 || userInfo.get(userInfo.size()-1).getPoints() > seconds)
-                                            intent = new Intent(GameActivity.this, ScoreActivity.class);
-                                        else
-                                            intent = new Intent(GameActivity.this, ResultActivity.class);
+                                        Intent intent=null;
+                                        if(userInfo.size()>0) {
+                                            if (userInfo.size() < 4 || userInfo.get(userInfo.size() - 1).getPoints() > seconds) {
+                                                intent = new Intent(GameActivity.this, ScoreActivity.class);
+                                            }
+                                            else
+                                                intent = new Intent(GameActivity.this, ResultActivity.class);
+                                        }
 
-                                        intent.putExtra("Index", userInfo.size()-1);
+                                        else{
+
+                                            intent = new Intent(GameActivity.this, ScoreActivity.class);
+                                        }
+
+                                        intent.putExtra("Index", userInfo.size());
                                         intent.putExtra("Result", WIN);
                                         intent.putExtra("Points", seconds);
                                         intent.putExtra("Difficulty", chosenLevel);
@@ -586,10 +594,12 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     public void onAccuracyChanged(Sensor sensor, int i) {
     }
 
+
     @Override
     public void performQuery(ArrayList<UserInfo> easyUsers) {
         userInfo=new ArrayList<>();
         userInfo.addAll(easyUsers);
+
     }
 }
 
