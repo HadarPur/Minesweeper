@@ -29,7 +29,6 @@ import android.os.Message;
 import com.example.hadar.minesweeper.quaries.CallData;
 import com.yalantis.starwars.TilesFrameLayout;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Random;
@@ -63,6 +62,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     private GPSTracker gpsTracker;
     private Location currentLocation;
     private JsonData jsonData;
+    private Context context=this;
     private ArrayList<UserInfo> userInfo;
 
     @Override
@@ -102,10 +102,9 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     }
 
     protected void onStart(){
-        Bundle ex;
         super.onStart();
         gpsTracker = new GPSTracker(this, firstAsk);
-        if(gpsTracker.getGPSEnable()&& gpsTracker.getPosition()!=null){
+        if(gpsTracker.getGPSEnable() && gpsTracker.getPosition()!=null){
             currentLocation=gpsTracker.getPosition();
             gpsTracker.initLocation();
         }
@@ -173,6 +172,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                             timer(mines);
                         }
                         if (cells[position / cells[0].length][position % cells[0].length].getStatus() == -1) {
+                            newGame.setBackgroundResource(R.drawable.burnsmile);
                             showAllMines();
                             isLost = true;
                         } else {
@@ -311,19 +311,16 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                                         Intent intent=null;
                                         if(userInfo.size()>0) {
                                             if ((userInfo.size() < MAX_RECORDS || userInfo.get(userInfo.size() - 1).getPoints() > seconds)
-                                                    && isNetworkAvailable(getApplicationContext())){
+                                                    && isNetworkAvailable(context))
                                                 intent = new Intent(GameActivity.this, ScoreActivity.class);
-                                            }
-
-                                            else {
+                                            else
                                                 intent = new Intent(GameActivity.this, ResultActivity.class);
-                                            }
                                         }
 
-                                        else if (isNetworkAvailable(getApplicationContext()))
-                                            intent = new Intent(GameActivity.this, ScoreActivity.class);
-                                        else
-                                            intent = new Intent(GameActivity.this, ResultActivity.class);
+                                        else if (!isNetworkAvailable(context))
+                                                intent = new Intent(GameActivity.this, ResultActivity.class);
+                                            else
+                                                intent = new Intent(GameActivity.this, ScoreActivity.class);
 
                                         intent.putExtra("list", userInfo);
                                         intent.putExtra("Result", WIN);
@@ -614,13 +611,13 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
 
     }
 
-
+    //network unavailable massage
     public void showConnectionInternetFailed() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Network Connection Failed");
-        alertDialog.setMessage("Network is not enabled." +
-                "If you want to get in to record table you need" +
-                "a connection to the internet / wifi");
+        alertDialog.setMessage("Network is not available." +
+                "\n"+
+                "If you want to get in to records table you need a network connection");
         alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -629,6 +626,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         alertDialog.show();
     }
 
+    //checking network connection
     public static boolean isNetworkAvailable(Context ctx) {
         ConnectivityManager connectivityManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
         if ((connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE) != null

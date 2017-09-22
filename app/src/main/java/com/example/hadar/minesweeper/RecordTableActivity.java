@@ -21,7 +21,6 @@ public class RecordTableActivity extends AppCompatActivity  {
     private static final int EASY=0, NORMAL=1, HARD=2;
     private boolean firstAsk=false;
     private double latitude, longitude;
-    private int level;
     private SupportMapFragment mapFragment;
     private TableFrame tableFragment;
     private GPSTracker gpsTracker;
@@ -69,6 +68,7 @@ public class RecordTableActivity extends AppCompatActivity  {
         setButtons();
     }
 
+    //set on click buttons
     public void setButtons() {
         easyButton = (Button) findViewById(R.id.easy);
         mediumButton = (Button) findViewById(R.id.Normal);
@@ -122,12 +122,14 @@ public class RecordTableActivity extends AppCompatActivity  {
         super.onResume();
     }
 
+    //massage to see the record list
     private void showMessage(){
         int duration = Toast.LENGTH_SHORT;
         Toast toast = Toast.makeText(this, "Click your location to see results", duration);
         toast.show();
     }
 
+    //location unavailable massage
     public void showSettingsAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Location is not available");
@@ -148,12 +150,13 @@ public class RecordTableActivity extends AppCompatActivity  {
         alertDialog.show();
     }
 
+    //network unavailable massage
     public void showConnectionInternetFailed() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Network Connection Failed");
-        alertDialog.setMessage("Network is not enabled." +
-                "If you want to see record table you need" +
-                "a connection to the internet / wifi");
+        alertDialog.setMessage("Network is unavailable." +
+                "\n"+
+                "If you want to see record table you need a connection to the network");
         alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -162,6 +165,8 @@ public class RecordTableActivity extends AppCompatActivity  {
         alertDialog.show();
     }
 
+
+    //checking network connection
     public static boolean isNetworkAvailable(Context ctx) {
         ConnectivityManager connectivityManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
         if ((connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE) != null

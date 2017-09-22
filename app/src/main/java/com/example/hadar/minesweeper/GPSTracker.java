@@ -30,7 +30,7 @@ public class GPSTracker extends Service implements LocationListener {
     public GPSTracker(Activity activity, boolean firstAction) {
         this.activity = activity;
         if (firstAction==true)
-            setFirstCounter();
+            setFirstCounter(PERMISSION_LOCATION_CODE);
         initLocation();
     }
 
@@ -47,7 +47,6 @@ public class GPSTracker extends Service implements LocationListener {
                         == PackageManager.PERMISSION_GRANTED ||
                         ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED) {
-
                     requestLocation();
                 }
                 else {
@@ -69,13 +68,15 @@ public class GPSTracker extends Service implements LocationListener {
         }
     }
 
-    private void setFirstCounter() {
+    //set the counter permission
+    private void setFirstCounter(int permissionCode) {
         SharedPreferences sharedPreferences=activity.getSharedPreferences("permissionCounters", Context.MODE_PRIVATE);
-        String sharedPreferencesKey=String.valueOf(PERMISSION_LOCATION_CODE);
+        String sharedPreferencesKey=String.valueOf(permissionCode);
         int permissionCounter=0;
         sharedPreferences.edit().putInt(sharedPreferencesKey, permissionCounter).apply();
     }
 
+    //get the counter permission
     private int getCounter(int permissionCode) {
         SharedPreferences sharedPreferences=activity.getSharedPreferences("permissionCounters", Context.MODE_PRIVATE);
         String sharedPreferencesKey=String.valueOf(permissionCode);
@@ -84,6 +85,7 @@ public class GPSTracker extends Service implements LocationListener {
         return permissionCounter;
     }
 
+    //counter permission++
     public void incrementCounter(int permissionCode) {
         SharedPreferences sharedPreferences=activity.getSharedPreferences("permissionCounters", Context.MODE_PRIVATE);
         String sharedPreferencesKey=String.valueOf(permissionCode);
@@ -104,7 +106,7 @@ public class GPSTracker extends Service implements LocationListener {
                     location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             }
         }
-        // if lcoation is not found from GPS than it will found from network //
+        // if location is not found from GPS than it will found from network //
         if (location == null) {
             if (isNetworkEnabled) {
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 10, this);

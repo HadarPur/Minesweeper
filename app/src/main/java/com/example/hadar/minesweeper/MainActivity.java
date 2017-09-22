@@ -1,21 +1,13 @@
 package com.example.hadar.minesweeper;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private int diff, isMute=1;
@@ -61,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.button4).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(MainActivity.this, RecordTableActivity.class);
+                Intent intent = new Intent(MainActivity.this, RecordTableActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
@@ -110,13 +102,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 diff=2;
                 break;
         }
-        if (diff>=0) {
-            intent = new Intent(this, GameActivity.class);
-            intent.putExtra("Difficulty", diff);
-            intent.putExtra("Volume", isMute);
-            startActivity(intent);
-            overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
-        }
+        intent = new Intent(this, GameActivity.class);
+        intent.putExtra("Difficulty", diff);
+        intent.putExtra("Volume", isMute);
+        startActivity(intent);
+        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
     }
 
    public void showSettingsAlert() {
@@ -147,5 +137,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         alertDialog.show();
     }
-
 }

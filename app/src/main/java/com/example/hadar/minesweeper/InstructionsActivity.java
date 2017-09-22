@@ -18,8 +18,9 @@ public class InstructionsActivity extends AppCompatActivity {
     public void findView() {
         tv=(TextView) findViewById(R.id.instruction);
         tv.setBackgroundColor(Color.argb(200, 165,205,253));
-        tv.setText("\n" +
-                "To play, you must allow the app to access your device's location.\n" +
+        tv.setText("\n"+
+                "To play, you must allow the app to access your device's location.\n"+
+                "To see the records table, you must allow the app to access your device's network.\n" +
                 "\n" +
                 "There are 3 levels: Easy, Normal and Hard\n" +
                 "Easy - 5 mines, board 10X10. \n" +
@@ -46,6 +47,4 @@ public class InstructionsActivity extends AppCompatActivity {
                 "\n");
         tv.setMovementMethod(new ScrollingMovementMethod());
     }
-
-
 }
