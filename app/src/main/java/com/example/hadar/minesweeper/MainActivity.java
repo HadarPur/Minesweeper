@@ -58,7 +58,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.button).setOnClickListener(this);
         findViewById(R.id.button2).setOnClickListener(this);
         findViewById(R.id.button3).setOnClickListener(this);
-        findViewById(R.id.button4).setOnClickListener(this);
+        findViewById(R.id.button4).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(MainActivity.this, RecordTableActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
+        });
         findViewById(R.id.mute).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,6 +75,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startSong();
                 isMute ^= 1;
 
+            }
+        });
+        findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(MainActivity.this, InstructionsActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         });
     }
@@ -94,9 +109,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button3:
                 diff=2;
                 break;
-            case R.id.button4:
-                diff=-1;
-                break;
         }
         if (diff>=0) {
             intent = new Intent(this, GameActivity.class);
@@ -104,11 +116,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             intent.putExtra("Volume", isMute);
             startActivity(intent);
             overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
-        }
-        else if (diff<0) {
-            intent=new Intent(this,RecordTableActivity.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
     }
 
