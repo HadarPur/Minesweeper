@@ -17,7 +17,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import java.io.IOException;
 
 public class RecordTableActivity extends AppCompatActivity  {
-    private static final String TAG =RecordTableActivity.class.getSimpleName();
     private static final int EASY=0, NORMAL=1, HARD=2;
     private boolean firstAsk=false;
     private double latitude, longitude;
@@ -35,9 +34,10 @@ public class RecordTableActivity extends AppCompatActivity  {
         if(gpsTracker.getGPSEnable()&& gpsTracker.getPosition()!=null){
             latitude=gpsTracker.getPosition().getLatitude();
             longitude=gpsTracker.getPosition().getLongitude();
+            //if location wasn't enable and now it's enable
             gpsTracker.initLocation();
         }
-        else {
+        else if (!gpsTracker.getGPSEnable()){
             showSettingsAlert();
             latitude=0;
             longitude=0;
@@ -59,20 +59,20 @@ public class RecordTableActivity extends AppCompatActivity  {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
                     map.setMarkersOnMap(tableFragment.getArray().get(position));
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
-
         setButtons();
     }
 
-    //set on click buttons
+    //set on click button
     public void setButtons() {
-        easyButton = (Button) findViewById(R.id.easy);
-        mediumButton = (Button) findViewById(R.id.Normal);
-        hardButton = (Button) findViewById(R.id.hard);
+        easyButton= (Button) findViewById(R.id.easy);
+        mediumButton= (Button) findViewById(R.id.Normal);
+        hardButton= (Button) findViewById(R.id.hard);
 
         easyButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,6 +111,7 @@ public class RecordTableActivity extends AppCompatActivity  {
             }
         });
     }
+
     @Override
     protected void onStart(){
         super.onStart();
@@ -122,14 +123,14 @@ public class RecordTableActivity extends AppCompatActivity  {
         super.onResume();
     }
 
-    //massage to see the record list
+    //massage to see the list
     private void showMessage(){
         int duration = Toast.LENGTH_SHORT;
         Toast toast = Toast.makeText(this, "Click your location to see results", duration);
         toast.show();
     }
 
-    //location unavailable massage
+    //massage that location isn't open
     public void showSettingsAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Location is not available");
@@ -150,23 +151,24 @@ public class RecordTableActivity extends AppCompatActivity  {
         alertDialog.show();
     }
 
-    //network unavailable massage
+    //massage that network isn't open
     public void showConnectionInternetFailed() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Network Connection Failed");
-        alertDialog.setMessage("Network is unavailable." +
+        alertDialog.setMessage("Network is not enabled." +
                 "\n"+
                 "If you want to see record table you need a connection to the network");
         alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                Intent intent=new Intent(RecordTableActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
         alertDialog.show();
     }
 
-
-    //checking network connection
+    //check network connection
     public static boolean isNetworkAvailable(Context ctx) {
         ConnectivityManager connectivityManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
         if ((connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE) != null

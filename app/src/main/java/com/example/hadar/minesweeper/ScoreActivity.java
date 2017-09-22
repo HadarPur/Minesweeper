@@ -3,16 +3,13 @@ package com.example.hadar.minesweeper;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import java.util.ArrayList;
 
 public class ScoreActivity extends AppCompatActivity {
-    private static final String TAG =ScoreActivity.class.getSimpleName();
     public final int WIN=1;
     public final int MAX_RECORDS=10;
     private TextView nametv;
@@ -46,15 +43,18 @@ public class ScoreActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    //get the result
     public void getResult() {
         Intent intent=getIntent();
-        Bundle ex=intent.getExtras();
-        myList = (ArrayList<UserInfo>) getIntent().getSerializableExtra("list");
-        points=ex.getInt("Points");
-        level=ex.getInt("Difficulty");
-        isMute=ex.getInt("Volume");
-        latitude=ex.getDouble("locationlat");
-        longitude=ex.getDouble("locationlong");
+        if (intent!=null) {
+            Bundle ex = intent.getExtras();
+            myList = (ArrayList<UserInfo>) getIntent().getSerializableExtra("list");
+            points = ex.getInt("Points");
+            level = ex.getInt("Difficulty");
+            isMute = ex.getInt("Volume");
+            latitude = ex.getDouble("locationlat");
+            longitude = ex.getDouble("locationlong");
+        }
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,19 +63,15 @@ public class ScoreActivity extends AppCompatActivity {
                 index=myList.size();
                 UserInfo user = new UserInfo(index,name,latitude,longitude,points,level);
                 JsonData firebaseData = new JsonData();
-                Log.d(TAG,"array size is: "+index);
                 if (index>=MAX_RECORDS) {
-                    Log.d(TAG,"replace");
                     firebaseData.replaceUserInDataBase(user, level, myList);
                 }
                 else {
-                    Log.d(TAG,"insert");
                     firebaseData.writeUserToDataBase(user, level);
                 }
                 nextActivity();
             }
         });
-
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,6 +80,7 @@ public class ScoreActivity extends AppCompatActivity {
         });
     }
 
+    //go to result activity
     public void nextActivity() {
         Intent intent=new Intent( ScoreActivity.this,ResultActivity.class);
         intent.putExtra("Result", WIN);

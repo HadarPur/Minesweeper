@@ -1,6 +1,5 @@
 package com.example.hadar.minesweeper;
 
-import android.util.Log;
 import com.example.hadar.minesweeper.quaries.CallData;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -14,7 +13,6 @@ import java.util.Iterator;
 
 public class JsonData implements Serializable {
     private static final int EASY=0, NORMAL=1, HARD=2;
-    private static final String TAG = "data";
     private UserInfo readed;
     private ArrayList<UserInfo> easyUsers;
     private ArrayList<UserInfo> normalUsers;
@@ -33,6 +31,7 @@ public class JsonData implements Serializable {
         hardUsers = new ArrayList<>();
     }
 
+    //write into fire base
     public void writeUserToDataBase(UserInfo user, int level) {
         switch (level) {
             case EASY:
@@ -47,8 +46,8 @@ public class JsonData implements Serializable {
         }
     }
 
+    //replace user in fire base
     public void replaceUserInDataBase(UserInfo user, int level,ArrayList<UserInfo> users) {
-
         int key = users.get(users.size()-1).getKey();
         String keyStr = " "+key;
         user.setKey(key);
@@ -65,8 +64,8 @@ public class JsonData implements Serializable {
         }
     }
 
+    //read from fire base
     public void readResults(final CallData queryCallback,int level) {
-        Log.d(TAG, "start reading");
         switch (level) {
             case EASY:
                 callingEvent(myRefEasy,queryCallback,level);
@@ -80,6 +79,7 @@ public class JsonData implements Serializable {
         }
     }
 
+    //fire base event
     private void callingEvent(DatabaseReference myRef, final CallData queryCallback, final int level){
         easyUsers.clear();
         normalUsers.clear();

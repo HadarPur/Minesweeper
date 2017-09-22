@@ -16,7 +16,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
@@ -35,9 +34,7 @@ import java.util.Random;
 import java.util.Set;
 import tyrantgit.explosionfield.ExplosionField;
 
-
 public class GameActivity extends AppCompatActivity  implements SensorEventListener, CallData {
-    private static final String TAG =GameActivity.class.getSimpleName();
     private static final int EASY=0, NORMAL=1, HARD=2;
     public static final int BOARD_CELL10 = 10, BOARD_CELL5 = 5;
     public static final int EASY_FLAGS = 5, HARD_FLAGS = 10;
@@ -62,7 +59,6 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     private GPSTracker gpsTracker;
     private Location currentLocation;
     private JsonData jsonData;
-    private Context context=this;
     private ArrayList<UserInfo> userInfo;
 
     @Override
@@ -76,7 +72,6 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         accelerometer = sensormanager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensormanager.registerListener(this, accelerometer , SensorManager.SENSOR_DELAY_NORMAL);
         newGame=(ImageButton)findViewById(R.id.smile);
-
         setOnClickButton();
         createNewGame();
 
@@ -102,14 +97,17 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     }
 
     protected void onStart(){
+        Bundle ex;
         super.onStart();
         gpsTracker = new GPSTracker(this, firstAsk);
         if(gpsTracker.getGPSEnable() && gpsTracker.getPosition()!=null){
             currentLocation=gpsTracker.getPosition();
+            //if location wasn't enable and now it's enable
             gpsTracker.initLocation();
         }
-        else
+        else if (!gpsTracker.getGPSEnable()) {
             showSettingsAlert();
+        }
     }
 
     protected void onResume() {
@@ -175,7 +173,8 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                             newGame.setBackgroundResource(R.drawable.burnsmile);
                             showAllMines();
                             isLost = true;
-                        } else {
+                        }
+                        else {
                             openCellRec(position / cells[0].length, position % cells[0].length);
 
                         }
@@ -234,6 +233,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         timeout.setText(String.valueOf(0));
     }
 
+    //explode animation for win stat
     public void explodeVictoryAnimation() {
         if (isMute==1) {
             win=MediaPlayer.create(this, R.raw.win);
@@ -245,6 +245,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         explode.explode(gridview);
     }
 
+    //open the cells with mines
     public void showAllMines() {
         int indexMine;
         if (isMute==1) {
@@ -263,7 +264,6 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     public void timer(final int mines) {
 
         final Handler handler = new Handler() {
-
             @Override
             public void handleMessage(Message msg) {
                 timeout.setText(String.valueOf(seconds));
@@ -309,18 +309,20 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                                 GameActivity.this.runOnUiThread(new Runnable() {
                                     public void run() {
                                         Intent intent=null;
-                                        if(userInfo.size()>0) {
-                                            if ((userInfo.size() < MAX_RECORDS || userInfo.get(userInfo.size() - 1).getPoints() > seconds)
-                                                    && isNetworkAvailable(context))
+                                        if (isNetworkAvailable(getApplicationContext())) {
+                                            if (userInfo.size() > 0) {
+                                                if (userInfo.size() < MAX_RECORDS || userInfo.get(userInfo.size() - 1).getPoints() > seconds) {
+                                                    intent = new Intent(GameActivity.this, ScoreActivity.class);
+                                                } else {
+                                                    intent = new Intent(GameActivity.this, ResultActivity.class);
+                                                }
+                                            }else{
                                                 intent = new Intent(GameActivity.this, ScoreActivity.class);
-                                            else
-                                                intent = new Intent(GameActivity.this, ResultActivity.class);
+                                            }
                                         }
 
-                                        else if (!isNetworkAvailable(context))
-                                                intent = new Intent(GameActivity.this, ResultActivity.class);
-                                            else
-                                                intent = new Intent(GameActivity.this, ScoreActivity.class);
+                                        else
+                                            intent = new Intent(GameActivity.this, ResultActivity.class);
 
                                         intent.putExtra("list", userInfo);
                                         intent.putExtra("Result", WIN);
@@ -345,7 +347,8 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                     }
                     Thread.currentThread().interrupt();
 
-                } catch (Throwable throwable) {
+                }
+                catch (Throwable throwable) {
                     finish();
                 }
             }
@@ -378,11 +381,9 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         setFlags = new LinkedHashSet<>();
         // five random cells with flags
         while(setFlags.size()<lavel){
-            Log.d(TAG, "size = " +setFlags.size());
             Random r = new Random();
             index = r.nextInt(boardSize*boardSize) + 0;
             setFlags.add(index);
-            Log.d(TAG, "size = " +setFlags.size());
         }
 
         // fill board with flags matrix
@@ -478,9 +479,9 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
     //calculate the number of bomb in the area for each cell helper
     public int calcSum (int startRow, int endRow, int startCol, int endCol){
         int sum =0;
-        for(int i=startRow; i<=endRow; i++){
-            for(int j=startCol; j<=endCol; j++){
-                if(cells[i][j].getStatus()== -1){
+        for(int i=startRow; i<=endRow; i++) {
+            for(int j=startCol; j<=endCol; j++) {
+                if(cells[i][j].getStatus()== -1) {
                     sum+= cells[i][j].getStatus();
                 }
             }
@@ -512,9 +513,9 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         }
     }
 
+    //sample the device's movement
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-
         float x,y,z;
         int index;
         Sensor mySensor = sensorEvent.sensor;
@@ -536,7 +537,6 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                     else {
                         count=HARD_FLAGS;
                     }
-                    Log.d(TAG, "still initial flags: "+count);
                 }
 
                 if ((Math.abs(oldX - x) >= 5) || (Math.abs(oldY - y) >= 5) || (Math.abs(oldZ - z) >= 5)) {
@@ -554,7 +554,6 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                     isChangeMines=true;
                     Random r = new Random();
                     index = r.nextInt(cells.length * cells[0].length) + 0;
-                    Log.d(TAG,"index: "+index);
                     if(setFlags.contains(index)==false) {
                         cells[index / cells.length][index % cells.length].setStatus(-1);
                         ((ImageAdapterLevel) gridview.getAdapter()).notifyDataSetChanged();
@@ -562,10 +561,10 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                         setBombsNum();
                         count++;
                         flags.setText(String.valueOf(count));
-                        Log.d(TAG,"mines: "+count);
                     }
 
                     if(setFlags.size() >= cells.length * cells[0].length) {
+                        newGame.setBackgroundResource(R.drawable.burnsmile);
                         showAllMines();
                         isLost = true;
                     }
@@ -579,12 +578,12 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         }
     }
 
+    //massage for specific app location
     public void showSettingsAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Location is not available");
         alertDialog.setMessage("You must permit location to play");
         alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 finish();
@@ -611,13 +610,13 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
 
     }
 
-    //network unavailable massage
+    //massage for network
     public void showConnectionInternetFailed() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Network Connection Failed");
-        alertDialog.setMessage("Network is not available." +
+        alertDialog.setMessage("Network is not enabled." +
                 "\n"+
-                "If you want to get in to records table you need a network connection");
+                "If you want to get in to record table you need a connection to the network");
         alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -626,7 +625,7 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         alertDialog.show();
     }
 
-    //checking network connection
+    //check if there is any network
     public static boolean isNetworkAvailable(Context ctx) {
         ConnectivityManager connectivityManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
         if ((connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE) != null

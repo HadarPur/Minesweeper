@@ -3,16 +3,11 @@ package com.example.hadar.minesweeper;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
 public class ResultActivity extends AppCompatActivity {
-    private static final String TAG =ResultActivity.class.getSimpleName();
     private ImageView imageView;
     private TextView tv;
     private int result, points, level, isMute;
@@ -24,6 +19,7 @@ public class ResultActivity extends AppCompatActivity {
         findView();
         getResult();
     }
+
     @Override
     protected void onStart() {
         super.onStart();

@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         open_song.stop();
     }
 
+    //find view by id
     public void findView(){
         findViewById(R.id.button).setOnClickListener(this);
         findViewById(R.id.button2).setOnClickListener(this);
@@ -79,10 +80,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    //stop the song
     public void stopSong(){
         open_song.stop();
         findViewById(R.id.mute).setBackgroundResource(R.drawable.tableopen);
     }
+
+    //start the song
     public void startSong(){
         open_song=MediaPlayer.create(this, R.raw.opensong);
         open_song.start();
@@ -109,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
     }
 
+    //massage for GPS
    public void showSettingsAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("GPS is settings");
@@ -119,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(intent);
+                finish();
             }
         });
         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

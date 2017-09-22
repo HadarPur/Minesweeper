@@ -1,11 +1,9 @@
 package com.example.hadar.minesweeper;
 
-import android.util.Log;
-
 import java.io.Serializable;
 
 public class UserInfo implements Serializable {
-    private static final String TAG ="user";
+    private static final int EASY=0, NORMAL=1, HARD=2;
     private int key;
     private String name;
     private double latitude;
@@ -24,13 +22,13 @@ public class UserInfo implements Serializable {
         this.points=points;
 
         switch (level){
-            case 0:
+            case EASY:
                 this.level="Easy";
                 break;
-            case 1:
+            case NORMAL:
                 this.level="medium";
                 break;
-            case 2:
+            case HARD:
                 this.level="hard";
                 break;
         }
@@ -65,7 +63,6 @@ public class UserInfo implements Serializable {
     public String toString(){
         String objectString=" ";
         objectString += " Name: " +this.name+ "  , Time: "+this.points+" sec";
-        Log.d(TAG,"string = "+ objectString);
         return objectString;
     }
 

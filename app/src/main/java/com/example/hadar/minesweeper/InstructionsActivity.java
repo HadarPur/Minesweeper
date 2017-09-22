@@ -15,6 +15,7 @@ public class InstructionsActivity extends AppCompatActivity {
         findView();
     }
 
+    //find view by id and set text
     public void findView() {
         tv=(TextView) findViewById(R.id.instruction);
         tv.setBackgroundColor(Color.argb(200, 165,205,253));

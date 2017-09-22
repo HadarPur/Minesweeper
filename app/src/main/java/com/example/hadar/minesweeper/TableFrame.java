@@ -3,21 +3,15 @@ package com.example.hadar.minesweeper;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
-
 import com.example.hadar.minesweeper.quaries.CallData;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class TableFrame extends Fragment implements CallData {
-    private static final String TAG ="table";
     private ListView recordsList;
     private ArrayList<UserInfo> usersData;
     private ArrayList<String> users;
@@ -46,9 +40,9 @@ public class TableFrame extends Fragment implements CallData {
         for(int i=0; i<usersData.size();i++) {
             users.add("( "+(i+1)+" ) " +usersData.get(i).toString());
         }
-        Log.d(TAG,"data arrived");
     }
 
+    //set specific list
     public void setList(int Level){
         usersData.clear();
         users.clear();
@@ -57,10 +51,12 @@ public class TableFrame extends Fragment implements CallData {
         adapter.notifyDataSetChanged();
     }
 
+    //get ready list
     public ListView getList() {
         return recordsList;
     }
 
+    //get ready array
     public ArrayList<UserInfo> getArray() {
         return usersData;
     }
