@@ -83,10 +83,12 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
         newGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pressNewGame();
-                rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f,  Animation.RELATIVE_TO_SELF, 0.5f);
-                rotate.setDuration(1000);
-                newGame.startAnimation(rotate);
+                if (isLost==false) {
+                    pressNewGame();
+                    rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                    rotate.setDuration(1000);
+                    newGame.startAnimation(rotate);
+                }
             }
         });
     }
@@ -165,7 +167,6 @@ public class GameActivity extends AppCompatActivity  implements SensorEventListe
                 if(isChangeMines==false) {
                     if (!cells[position / cells[0].length][position % cells[0].length].longPressed()) {
                         if (isFirstClick == true) {
-                            //  initialPosition = false;
                             isFirstClick = false;
                             timer(mines);
                         }
