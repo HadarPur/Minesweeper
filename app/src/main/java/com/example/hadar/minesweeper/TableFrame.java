@@ -40,6 +40,7 @@ public class TableFrame extends Fragment implements CallData {
         for(int i=0; i<usersData.size();i++) {
             users.add("( "+(i+1)+" ) " +usersData.get(i).toString());
         }
+        adapter.notifyDataSetChanged();
     }
 
     //set specific list

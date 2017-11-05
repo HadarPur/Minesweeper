@@ -77,7 +77,6 @@ public class RecordTableActivity extends AppCompatActivity  {
         easyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showMessage();
                 easyButton.setBackgroundResource(R.drawable.tableopen);
                 mediumButton.setBackgroundResource(R.drawable.table);
                 hardButton.setBackgroundResource(R.drawable.table);
@@ -90,7 +89,6 @@ public class RecordTableActivity extends AppCompatActivity  {
         mediumButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showMessage();
                 easyButton.setBackgroundResource(R.drawable.table);
                 mediumButton.setBackgroundResource(R.drawable.tableopen);
                 hardButton.setBackgroundResource(R.drawable.table);
@@ -102,7 +100,6 @@ public class RecordTableActivity extends AppCompatActivity  {
         hardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showMessage();
                 easyButton.setBackgroundResource(R.drawable.table);
                 mediumButton.setBackgroundResource(R.drawable.table);
                 hardButton.setBackgroundResource(R.drawable.tableopen);
@@ -115,19 +112,11 @@ public class RecordTableActivity extends AppCompatActivity  {
     @Override
     protected void onStart(){
         super.onStart();
-        showMessage();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-    }
-
-    //massage to see the list
-    private void showMessage(){
-        int duration = Toast.LENGTH_SHORT;
-        Toast toast = Toast.makeText(this, "Click your location to see results", duration);
-        toast.show();
     }
 
     //massage that location isn't open
