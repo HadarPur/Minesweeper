@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         intent.putExtra("Difficulty", diff);
         intent.putExtra("Volume", isMute);
         startActivity(intent);
-        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     //massage for GPS
