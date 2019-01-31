@@ -26,4 +26,7 @@ If you want to see where the record was broken you need to click on the specific
 
 Of course to see where it was, you need to click on location marker.
 
+## App design:
 
+<img src="https://github.com/HadarPur/MinesweeperAndroid/blob/master/Wireframe.png" />
+<img src="https://github.com/HadarPur/MinesweeperAndroid/blob/master/Diagram.png" />
