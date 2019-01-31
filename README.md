@@ -29,4 +29,4 @@ Of course to see where it was, you need to click on location marker.
 ## App design:
 
 <img src="https://github.com/HadarPur/MinesweeperAndroid/blob/master/Wireframe.png" />
-<img src="https://github.com/HadarPur/MinesweeperAndroid/blob/master/Diagram.png" />
+<img src="https://github.com/HadarPur/MinesweeperAndroid/blob/master/SeqDiagram.png" />
